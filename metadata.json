@@ -1,0 +1,6 @@
+{
+  "name": "BT Watcher",
+  "description": "Ứng dụng ghi lại lịch sử kết nối/ngắt kết nối thiết bị Bluetooth kèm thời gian và tọa độ GPS.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
