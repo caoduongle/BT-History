@@ -27,7 +27,6 @@ import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PinDrop
 import androidx.compose.material.icons.filled.Schedule
-import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -39,7 +38,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -53,7 +51,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontFamily
@@ -66,16 +63,20 @@ import com.example.data.entity.EventEntity
 import com.example.ui.components.StatusBadge
 import com.example.ui.components.TimelineItem
 import com.example.ui.components.getDeviceIcon
-import com.example.ui.theme.ConnectGreen
-import com.example.ui.theme.CyanPrimary
-import com.example.ui.theme.CyanPrimaryContainer
-import com.example.ui.theme.DarkBackground
-import com.example.ui.theme.DarkOutline
-import com.example.ui.theme.DarkSurface
-import com.example.ui.theme.DarkSurfaceCard
-import com.example.ui.theme.DisconnectRed
-import com.example.ui.theme.DisconnectRedBg
-import com.example.ui.theme.GpsBlue
+import com.example.ui.theme.BentoBackground
+import com.example.ui.theme.BentoCardElevated
+import com.example.ui.theme.BentoGreen
+import com.example.ui.theme.BentoOutline
+import com.example.ui.theme.BentoPurpleContainer
+import com.example.ui.theme.BentoPurpleLight
+import com.example.ui.theme.BentoPurplePrimary
+import com.example.ui.theme.BentoRed
+import com.example.ui.theme.BentoRedBg
+import com.example.ui.theme.BentoSurface
+import com.example.ui.theme.BentoSurfaceVariant
+import com.example.ui.theme.BentoTextMuted
+import com.example.ui.theme.BentoTextPrimary
+import com.example.ui.theme.BentoTextSecondary
 import com.example.ui.viewmodel.DeviceViewModel
 import com.example.util.LocationHelper
 import com.example.util.TimeFormatter
@@ -100,10 +101,10 @@ fun DeviceDetailScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(DarkBackground),
+                .background(BentoBackground),
             contentAlignment = Alignment.Center
         ) {
-            Text("Không tìm thấy thông tin thiết bị", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text("Không tìm thấy thông tin thiết bị", color = BentoTextMuted)
         }
         return
     }
@@ -111,7 +112,7 @@ fun DeviceDetailScreen(
     Scaffold(
         modifier = modifier
             .fillMaxSize()
-            .background(DarkBackground)
+            .background(BentoBackground)
             .testTag("device_detail_screen"),
         topBar = {
             TopAppBar(
@@ -121,14 +122,14 @@ fun DeviceDetailScreen(
                             text = currentDevice.name,
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onBackground,
+                            color = BentoTextPrimary,
                             maxLines = 1
                         )
                         Text(
                             text = currentDevice.macAddress,
                             style = MaterialTheme.typography.labelSmall,
                             fontFamily = FontFamily.Monospace,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            color = BentoTextMuted,
                             fontSize = 11.sp
                         )
                     }
@@ -138,7 +139,7 @@ fun DeviceDetailScreen(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Quay lại",
-                            tint = MaterialTheme.colorScheme.onSurface
+                            tint = BentoTextPrimary
                         )
                     }
                 },
@@ -147,17 +148,17 @@ fun DeviceDetailScreen(
                         Icon(
                             imageVector = Icons.Default.MoreVert,
                             contentDescription = "Tùy chọn",
-                            tint = MaterialTheme.colorScheme.onSurface
+                            tint = BentoTextPrimary
                         )
                     }
 
                     DropdownMenu(
                         expanded = showMenu,
                         onDismissRequest = { showMenu = false },
-                        modifier = Modifier.background(DarkSurfaceCard)
+                        modifier = Modifier.background(BentoSurface)
                     ) {
                         DropdownMenuItem(
-                            text = { Text("Mô phỏng Kết nối") },
+                            text = { Text("Mô phỏng Kết nối", color = BentoTextPrimary) },
                             onClick = {
                                 showMenu = false
                                 viewModel.simulateTestEvent(
@@ -168,12 +169,12 @@ fun DeviceDetailScreen(
                                 )
                             },
                             leadingIcon = {
-                                Icon(Icons.Default.BluetoothConnected, contentDescription = null, tint = ConnectGreen)
+                                Icon(Icons.Default.BluetoothConnected, contentDescription = null, tint = BentoGreen)
                             }
                         )
 
                         DropdownMenuItem(
-                            text = { Text("Mô phỏng Ngắt kết nối") },
+                            text = { Text("Mô phỏng Ngắt kết nối", color = BentoTextPrimary) },
                             onClick = {
                                 showMenu = false
                                 viewModel.simulateTestEvent(
@@ -184,24 +185,24 @@ fun DeviceDetailScreen(
                                 )
                             },
                             leadingIcon = {
-                                Icon(Icons.Default.BluetoothDisabled, contentDescription = null, tint = DisconnectRed)
+                                Icon(Icons.Default.BluetoothDisabled, contentDescription = null, tint = BentoRed)
                             }
                         )
 
                         DropdownMenuItem(
-                            text = { Text("Xóa thiết bị này", color = MaterialTheme.colorScheme.error) },
+                            text = { Text("Xóa thiết bị này", color = BentoRed) },
                             onClick = {
                                 showMenu = false
                                 showDeleteConfirm = true
                             },
                             leadingIcon = {
-                                Icon(Icons.Default.Delete, contentDescription = null, tint = MaterialTheme.colorScheme.error)
+                                Icon(Icons.Default.Delete, contentDescription = null, tint = BentoRed)
                             }
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = DarkSurface
+                    containerColor = BentoSurface
                 )
             )
         }
@@ -210,18 +211,17 @@ fun DeviceDetailScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(DarkBackground)
-                .testTag("detail_lazy_column")
+                .background(BentoBackground)
+                .testTag("detail_lazy_column"),
+            contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            // Top Summary Card
+            // Top Summary Card in Bento Style
             item {
-                DeviceHeaderCard(
-                    device = currentDevice,
-                    modifier = Modifier.padding(16.dp)
-                )
+                DeviceHeaderCard(device = currentDevice)
             }
 
-            // Prominent "Lần cuối cùng thấy thiết bị" (Last seen) Card
+            // Prominent "Lần cuối cùng thấy thiết bị" (Last seen) Bento Card
             item {
                 LastSeenCard(
                     device = currentDevice,
@@ -233,8 +233,7 @@ fun DeviceDetailScreen(
                             longitude = lon,
                             label = "Lần cuối thấy ${currentDevice.name}"
                         )
-                    },
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                    }
                 )
             }
 
@@ -243,21 +242,22 @@ fun DeviceDetailScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 16.dp, end = 16.dp, top = 20.dp, bottom = 8.dp),
+                        .padding(top = 8.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Lịch sử sự kiện (${events.size})",
-                        style = MaterialTheme.typography.titleMedium,
+                        text = "LỊCH SỬ SỰ KIỆN (${events.size})",
+                        style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onBackground
+                        letterSpacing = 1.sp,
+                        color = BentoPurpleLight
                     )
 
                     Text(
                         text = "Mới nhất ở trên",
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = BentoTextMuted
                     )
                 }
             }
@@ -268,13 +268,16 @@ fun DeviceDetailScreen(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(32.dp),
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(BentoSurface)
+                            .border(1.dp, BentoOutline, RoundedCornerShape(20.dp))
+                            .padding(24.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
                             text = "Chưa có sự kiện nào được ghi nhận cho thiết bị này.",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = BentoTextMuted
                         )
                     }
                 }
@@ -299,8 +302,8 @@ fun DeviceDetailScreen(
     if (showDeleteConfirm) {
         AlertDialog(
             onDismissRequest = { showDeleteConfirm = false },
-            title = { Text("Xóa thiết bị?") },
-            text = { Text("Toàn bộ lịch sử kết nối và tọa độ GPS của \"${currentDevice.name}\" sẽ bị xóa khỏi máy.") },
+            title = { Text("Xóa thiết bị?", color = BentoTextPrimary, fontWeight = FontWeight.Bold) },
+            text = { Text("Toàn bộ lịch sử kết nối và tọa độ GPS của \"${currentDevice.name}\" sẽ bị xóa khỏi máy.", color = BentoTextSecondary) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -309,15 +312,16 @@ fun DeviceDetailScreen(
                         onBack()
                     }
                 ) {
-                    Text("Xóa", color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Bold)
+                    Text("Xóa", color = BentoRed, fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteConfirm = false }) {
-                    Text("Hủy")
+                    Text("Hủy", color = BentoPurpleLight)
                 }
             },
-            containerColor = DarkSurface
+            containerColor = BentoSurface,
+            shape = RoundedCornerShape(24.dp)
         )
     }
 }
@@ -330,29 +334,29 @@ private fun DeviceHeaderCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .border(1.dp, DarkOutline, RoundedCornerShape(16.dp)),
-        colors = CardDefaults.cardColors(containerColor = DarkSurfaceCard),
-        shape = RoundedCornerShape(16.dp)
+            .clip(RoundedCornerShape(24.dp))
+            .border(1.dp, BentoOutline, RoundedCornerShape(24.dp)),
+        colors = CardDefaults.cardColors(containerColor = BentoSurfaceVariant),
+        shape = RoundedCornerShape(24.dp)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(18.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
                 modifier = Modifier
-                    .size(52.dp)
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(CyanPrimaryContainer)
-                    .border(1.dp, CyanPrimary.copy(alpha = 0.4f), RoundedCornerShape(14.dp)),
+                    .size(54.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(BentoPurplePrimary)
+                    .border(1.dp, BentoPurpleLight.copy(alpha = 0.4f), RoundedCornerShape(16.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = getDeviceIcon(device.deviceType),
                     contentDescription = null,
-                    tint = CyanPrimary,
+                    tint = BentoPurpleLight,
                     modifier = Modifier.size(28.dp)
                 )
             }
@@ -362,18 +366,18 @@ private fun DeviceHeaderCard(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = device.name,
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = BentoTextPrimary
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = "Loại: ${device.deviceType} • MAC: ${device.macAddress}",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = BentoTextMuted,
                     fontSize = 11.sp
                 )
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(modifier = Modifier.height(8.dp))
                 StatusBadge(isConnected = device.isConnected, timestamp = device.lastEventTimestamp)
             }
         }
@@ -387,7 +391,6 @@ private fun LastSeenCard(
     onOpenMap: (Double, Double) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // Determine last seen location & timestamp from either lastDisconnectEvent or device state
     val timestamp = lastDisconnectEvent?.timestamp ?: device.lastEventTimestamp
     val latitude = lastDisconnectEvent?.latitude ?: device.lastLatitude
     val longitude = lastDisconnectEvent?.longitude ?: device.lastLongitude
@@ -397,64 +400,69 @@ private fun LastSeenCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .border(1.5.dp, if (hasLocation) CyanPrimary.copy(alpha = 0.6f) else DarkOutline, RoundedCornerShape(16.dp))
+            .clip(RoundedCornerShape(24.dp))
+            .border(
+                1.5.dp,
+                if (hasLocation) BentoPurpleLight.copy(alpha = 0.6f) else BentoOutline,
+                RoundedCornerShape(24.dp)
+            )
             .testTag("last_seen_card"),
         colors = CardDefaults.cardColors(
-            containerColor = DarkSurfaceCard
+            containerColor = BentoSurface
         ),
-        shape = RoundedCornerShape(16.dp)
+        shape = RoundedCornerShape(24.dp)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(20.dp)
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Box(
                     modifier = Modifier
-                        .size(32.dp)
-                        .clip(CircleShape)
-                        .background(GpsBlue.copy(alpha = 0.2f)),
+                        .size(36.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(BentoPurplePrimary)
+                        .border(1.dp, BentoPurpleLight.copy(alpha = 0.3f), RoundedCornerShape(12.dp)),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Default.PinDrop,
                         contentDescription = "Last seen",
-                        tint = CyanPrimary,
-                        modifier = Modifier.size(18.dp)
+                        tint = BentoPurpleLight,
+                        modifier = Modifier.size(20.dp)
                     )
                 }
 
-                Spacer(modifier = Modifier.width(10.dp))
+                Spacer(modifier = Modifier.width(12.dp))
 
                 Column {
                     Text(
                         text = "LẦN CUỐI CÙNG THẤY THIẾT BỊ",
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Bold,
-                        color = CyanPrimary,
-                        letterSpacing = 0.5.sp
+                        color = BentoPurpleLight,
+                        letterSpacing = 0.8.sp
                     )
                     Text(
-                        text = "Thời gian & vị trí lần ngắt kết nối gần nhất",
+                        text = "Thời gian & vị trí ngắt kết nối gần nhất",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = BentoTextMuted,
                         fontSize = 11.sp
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-            // Time row
+            // Time block
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = Icons.Default.Schedule,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    tint = BentoPurpleLight,
                     modifier = Modifier.size(16.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
@@ -463,25 +471,25 @@ private fun LastSeenCard(
                         text = TimeFormatter.formatFullDateTime(timestamp),
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = BentoTextPrimary
                     )
                     Text(
                         text = "(${TimeFormatter.formatRelativeTime(timestamp)})",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = BentoTextSecondary,
                         fontSize = 11.sp
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-            // Location row
+            // Location block
             Row(verticalAlignment = Alignment.Top) {
                 Icon(
                     imageVector = Icons.Default.LocationOn,
                     contentDescription = null,
-                    tint = CyanPrimary,
+                    tint = BentoPurpleLight,
                     modifier = Modifier.size(16.dp).padding(top = 2.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
@@ -491,26 +499,27 @@ private fun LastSeenCard(
                             text = address ?: "Tọa độ GPS:",
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.onSurface
+                            color = BentoTextPrimary
                         )
+                        Spacer(modifier = Modifier.height(2.dp))
                         Text(
                             text = TimeFormatter.formatCoordinates(latitude, longitude),
                             style = MaterialTheme.typography.bodySmall,
                             fontFamily = FontFamily.Monospace,
-                            color = CyanPrimary,
+                            color = BentoPurpleLight,
                             fontSize = 12.sp
                         )
                     } else {
                         Text(
                             text = "Chưa ghi nhận tọa độ GPS cho lần ngắt này",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = BentoTextMuted
                         )
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(18.dp))
 
             // Prominent Map Button
             Button(
@@ -522,24 +531,31 @@ private fun LastSeenCard(
                 enabled = hasLocation,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(48.dp)
+                    .height(50.dp)
                     .testTag("open_map_button"),
-                shape = RoundedCornerShape(12.dp),
+                shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = CyanPrimary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                    disabledContainerColor = DarkOutline,
-                    disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                    containerColor = BentoPurplePrimary,
+                    contentColor = BentoPurpleLight,
+                    disabledContainerColor = BentoCardElevated,
+                    disabledContentColor = BentoTextMuted
                 )
             ) {
-                Icon(imageVector = Icons.Default.Map, contentDescription = null, modifier = Modifier.size(20.dp))
+                Icon(
+                    imageVector = Icons.Default.Map,
+                    contentDescription = null,
+                    tint = if (hasLocation) BentoPurpleLight else BentoTextMuted,
+                    modifier = Modifier.size(20.dp)
+                )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = if (hasLocation) "Xem vị trí trên bản đồ" else "Không có tọa độ để mở bản đồ",
                     style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = if (hasLocation) BentoPurpleLight else BentoTextMuted
                 )
             }
         }
     }
 }
+

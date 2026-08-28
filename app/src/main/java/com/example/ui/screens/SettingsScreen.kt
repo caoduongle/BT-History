@@ -35,6 +35,7 @@ import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Speed
+import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -61,7 +62,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
@@ -69,15 +69,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.ui.components.WarningBanner
-import com.example.ui.theme.ConnectGreen
-import com.example.ui.theme.CyanPrimary
-import com.example.ui.theme.CyanPrimaryContainer
-import com.example.ui.theme.DarkBackground
-import com.example.ui.theme.DarkOutline
-import com.example.ui.theme.DarkSurface
-import com.example.ui.theme.DarkSurfaceCard
+import com.example.ui.theme.BentoBackground
+import com.example.ui.theme.BentoCardElevated
+import com.example.ui.theme.BentoGreen
+import com.example.ui.theme.BentoOutline
+import com.example.ui.theme.BentoPurpleContainer
+import com.example.ui.theme.BentoPurpleLight
+import com.example.ui.theme.BentoPurplePrimary
+import com.example.ui.theme.BentoRed
+import com.example.ui.theme.BentoRedBg
+import com.example.ui.theme.BentoSurface
+import com.example.ui.theme.BentoSurfaceVariant
+import com.example.ui.theme.BentoTextMuted
+import com.example.ui.theme.BentoTextPrimary
+import com.example.ui.theme.BentoTextSecondary
 import com.example.ui.viewmodel.DeviceViewModel
-import com.example.util.BluetoothHelper
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -95,22 +101,22 @@ fun SettingsScreen(
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) {
-        // Updated permissions
+        // Permissions updated
     }
 
     Scaffold(
         modifier = modifier
             .fillMaxSize()
-            .background(DarkBackground)
+            .background(BentoBackground)
             .testTag("settings_screen"),
         topBar = {
             TopAppBar(
                 title = {
                     Text(
                         text = "Cài đặt & Giới thiệu",
-                        style = MaterialTheme.typography.titleLarge,
+                        style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onBackground
+                        color = BentoTextPrimary
                     )
                 },
                 navigationIcon = {
@@ -118,12 +124,12 @@ fun SettingsScreen(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Quay lại",
-                            tint = MaterialTheme.colorScheme.onSurface
+                            tint = BentoTextPrimary
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = DarkSurface
+                    containerColor = BentoSurface
                 )
             )
         }
@@ -132,22 +138,23 @@ fun SettingsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(DarkBackground)
+                .background(BentoBackground)
                 .verticalScroll(rememberScrollState())
-                .padding(16.dp)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Group: Cấu hình Dịch vụ & Cảnh báo
+            // Group: Cấu hình Dịch vụ & Cảnh báo (Bento Tile)
             SectionTitle("DỊCH VỤ & CẢNH BÁO")
 
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp))
-                    .border(1.dp, DarkOutline, RoundedCornerShape(16.dp)),
-                colors = CardDefaults.cardColors(containerColor = DarkSurfaceCard),
-                shape = RoundedCornerShape(16.dp)
+                    .clip(RoundedCornerShape(24.dp))
+                    .border(1.dp, BentoOutline, RoundedCornerShape(24.dp)),
+                colors = CardDefaults.cardColors(containerColor = BentoSurface),
+                shape = RoundedCornerShape(24.dp)
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
+                Column(modifier = Modifier.padding(18.dp)) {
                     // Switch 1: Foreground Service
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -159,13 +166,13 @@ fun SettingsScreen(
                                 text = "Dịch vụ ghi log chạy nền",
                                 style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurface
+                                color = BentoTextPrimary
                             )
-                            Spacer(modifier = Modifier.height(2.dp))
+                            Spacer(modifier = Modifier.height(3.dp))
                             Text(
-                                text = "Chạy Foreground Service với thông báo cố định nhỏ gọn để Android không tắt app khi khóa màn hình.",
+                                text = "Chạy Foreground Service với thông báo nhỏ gọn để Android không giải phóng bộ nhớ khi tắt màn hình.",
                                 style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                color = BentoTextSecondary,
                                 lineHeight = 16.sp
                             )
                         }
@@ -176,15 +183,17 @@ fun SettingsScreen(
                             checked = isServiceEnabled,
                             onCheckedChange = { viewModel.toggleService(it) },
                             colors = SwitchDefaults.colors(
-                                checkedThumbColor = CyanPrimary,
-                                checkedTrackColor = CyanPrimaryContainer
+                                checkedThumbColor = BentoPurpleLight,
+                                checkedTrackColor = BentoPurplePrimary,
+                                uncheckedThumbColor = BentoTextMuted,
+                                uncheckedTrackColor = BentoSurfaceVariant
                             ),
                             modifier = Modifier.testTag("service_toggle_switch")
                         )
                     }
 
                     Spacer(modifier = Modifier.height(14.dp))
-                    Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(DarkOutline))
+                    Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(BentoOutline))
                     Spacer(modifier = Modifier.height(14.dp))
 
                     // Switch 2: Disconnect Alerts
@@ -195,16 +204,16 @@ fun SettingsScreen(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "Cảnh báo ngắt kết nối bất ngờ",
+                                text = "Cảnh báo ngắt kết nối tức thì",
                                 style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurface
+                                color = BentoTextPrimary
                             )
-                            Spacer(modifier = Modifier.height(2.dp))
+                            Spacer(modifier = Modifier.height(3.dp))
                             Text(
-                                text = "Gửi thông báo tức thì kèm vị trí khi thiết bị mất kết nối — giúp phát hiện ngay khi làm rơi hoặc để quên.",
+                                text = "Phát cảnh báo âm thanh và rung kèm tọa độ ngay khi tai nghe/loa bị ngắt — phòng ngừa bỏ quên thiết bị.",
                                 style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                color = BentoTextSecondary,
                                 lineHeight = 16.sp
                             )
                         }
@@ -215,8 +224,10 @@ fun SettingsScreen(
                             checked = isDisconnectAlertEnabled,
                             onCheckedChange = { viewModel.toggleDisconnectAlert(it) },
                             colors = SwitchDefaults.colors(
-                                checkedThumbColor = CyanPrimary,
-                                checkedTrackColor = CyanPrimaryContainer
+                                checkedThumbColor = BentoPurpleLight,
+                                checkedTrackColor = BentoPurplePrimary,
+                                uncheckedThumbColor = BentoTextMuted,
+                                uncheckedTrackColor = BentoSurfaceVariant
                             ),
                             modifier = Modifier.testTag("alert_toggle_switch")
                         )
@@ -224,33 +235,32 @@ fun SettingsScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // Group: Thao tác Dữ liệu & Thiết bị
+            // Group: Thao tác Dữ liệu & Thiết bị (Bento Tile)
             SectionTitle("THIẾT BỊ & DỮ LIỆU")
 
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp))
-                    .border(1.dp, DarkOutline, RoundedCornerShape(16.dp)),
-                colors = CardDefaults.cardColors(containerColor = DarkSurfaceCard),
-                shape = RoundedCornerShape(16.dp)
+                    .clip(RoundedCornerShape(24.dp))
+                    .border(1.dp, BentoOutline, RoundedCornerShape(24.dp)),
+                colors = CardDefaults.cardColors(containerColor = BentoSurface),
+                shape = RoundedCornerShape(24.dp)
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
+                Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     // Sync paired devices
-                    OutlinedButton(
+                    Button(
                         onClick = { viewModel.syncPairedDevices() },
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(10.dp),
-                        colors = ButtonDefaults.outlinedButtonColors(contentColor = CyanPrimary)
+                        shape = RoundedCornerShape(14.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = BentoPurplePrimary,
+                            contentColor = BentoPurpleLight
+                        )
                     ) {
                         Icon(Icons.Default.Sync, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Quét & đồng bộ thiết bị Bluetooth đã ghép đôi", fontWeight = FontWeight.SemiBold)
+                        Text("Quét & đồng bộ thiết bị đã ghép đôi", fontWeight = FontWeight.SemiBold)
                     }
-
-                    Spacer(modifier = Modifier.height(10.dp))
 
                     // Request/Check permissions button
                     OutlinedButton(
@@ -269,74 +279,84 @@ fun SettingsScreen(
                             permissionLauncher.launch(perms.toTypedArray())
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(10.dp),
-                        colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.onSurface)
+                        shape = RoundedCornerShape(14.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = BentoPurpleLight,
+                            containerColor = BentoSurfaceVariant
+                        ),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, BentoOutline)
                     ) {
                         Icon(Icons.Default.Security, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(8.dp))
                         Text("Kiểm tra & Cấp lại quyền hệ thống", fontWeight = FontWeight.SemiBold)
                     }
 
-                    Spacer(modifier = Modifier.height(10.dp))
-
                     // Clear All History
                     OutlinedButton(
                         onClick = { showClearHistoryDialog = true },
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(10.dp),
-                        colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
+                        shape = RoundedCornerShape(14.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = BentoRed,
+                            containerColor = BentoRedBg
+                        ),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, BentoRed.copy(alpha = 0.3f))
                     ) {
-                        Icon(Icons.Default.DeleteForever, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Icon(Icons.Default.DeleteForever, contentDescription = null, modifier = Modifier.size(18.dp), tint = BentoRed)
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Xóa toàn bộ lịch sử thiết bị & sự kiện", fontWeight = FontWeight.SemiBold)
+                        Text("Xóa toàn bộ lịch sử thiết bị & sự kiện", fontWeight = FontWeight.SemiBold, color = BentoRed)
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // Group: Lưu ý & Hướng dẫn kỹ thuật
+            // Group: Bento Notes & Information
             SectionTitle("LƯU Ý QUAN TRỌNG & NGUYÊN LÝ HOẠT ĐỘNG")
             WarningBanner()
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Tech FAQ Card
+            // Tech Info Bento Card
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp))
-                    .border(1.dp, DarkOutline, RoundedCornerShape(16.dp)),
-                colors = CardDefaults.cardColors(containerColor = DarkSurfaceCard),
-                shape = RoundedCornerShape(16.dp)
+                    .clip(RoundedCornerShape(24.dp))
+                    .border(1.dp, BentoOutline, RoundedCornerShape(24.dp)),
+                colors = CardDefaults.cardColors(containerColor = BentoSurfaceVariant),
+                shape = RoundedCornerShape(24.dp)
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        text = "📱 Lưu trữ cục bộ hoàn toàn (Room SQLite)",
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
+                Column(modifier = Modifier.padding(18.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.Storage, contentDescription = null, tint = BentoPurpleLight, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Lưu trữ cục bộ an toàn (Room SQLite)",
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = BentoTextPrimary
+                        )
+                    }
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = "Mọi thông tin thiết bị, thời gian và tọa độ được lưu trữ an toàn 100% trên điện thoại của bạn, không gửi lên bất kỳ máy chủ nào.",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = BentoTextSecondary
                     )
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(14.dp))
 
-                    Text(
-                        text = "🗺️ Xem bản đồ không cần API Key",
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.AutoMirrored.Filled.Help, contentDescription = null, tint = BentoPurpleLight, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Xem bản đồ không cần API Key",
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = BentoTextPrimary
+                        )
+                    }
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = "Ứng dụng mở trực tiếp ứng dụng Bản đồ (Google Maps hoặc bản đồ mặc định của máy) thông qua Android Intent tiêu chuẩn.",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = BentoTextSecondary
                     )
                 }
             }
@@ -349,8 +369,8 @@ fun SettingsScreen(
     if (showClearHistoryDialog) {
         AlertDialog(
             onDismissRequest = { showClearHistoryDialog = false },
-            title = { Text("Xác nhận xóa toàn bộ?") },
-            text = { Text("Hành động này sẽ xóa vĩnh viễn danh sách mọi thiết bị và toàn bộ dòng thời gian sự kiện đã lưu.") },
+            title = { Text("Xác nhận xóa toàn bộ?", color = BentoTextPrimary, fontWeight = FontWeight.Bold) },
+            text = { Text("Hành động này sẽ xóa vĩnh viễn danh sách mọi thiết bị và toàn bộ dòng thời gian sự kiện đã lưu trên máy.", color = BentoTextSecondary) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -358,15 +378,16 @@ fun SettingsScreen(
                         showClearHistoryDialog = false
                     }
                 ) {
-                    Text("Xóa tất cả", color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Bold)
+                    Text("Xóa tất cả", color = BentoRed, fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showClearHistoryDialog = false }) {
-                    Text("Hủy")
+                    Text("Hủy", color = BentoPurpleLight)
                 }
             },
-            containerColor = DarkSurface
+            containerColor = BentoSurface,
+            shape = RoundedCornerShape(24.dp)
         )
     }
 }
@@ -377,8 +398,8 @@ private fun SectionTitle(title: String) {
         text = title,
         style = MaterialTheme.typography.labelSmall,
         fontWeight = FontWeight.Bold,
-        color = CyanPrimary,
-        letterSpacing = 0.5.sp,
-        modifier = Modifier.padding(start = 4.dp, bottom = 8.dp)
+        color = BentoPurpleLight,
+        letterSpacing = 1.sp,
+        modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)
     )
 }

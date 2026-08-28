@@ -21,7 +21,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ChevronRight
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Bluetooth
 import androidx.compose.material.icons.filled.Computer
 import androidx.compose.material.icons.filled.DirectionsCar
@@ -218,7 +218,7 @@ fun DeviceCard(
                         }
                     } else {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ChevronRight,
+                            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                             contentDescription = "Chi tiết",
                             tint = BentoTextMuted,
                             modifier = Modifier.size(16.dp)

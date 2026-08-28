@@ -22,17 +22,17 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Bluetooth
+import androidx.compose.material.icons.filled.BluetoothConnected
 import androidx.compose.material.icons.filled.BluetoothSearching
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.Sync
+import androidx.compose.material.icons.filled.Timeline
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -61,7 +61,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -71,16 +71,26 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.data.entity.DeviceEntity
 import com.example.ui.components.DeviceCard
 import com.example.ui.components.WarningBanner
-import com.example.ui.theme.ConnectGreen
-import com.example.ui.theme.ConnectGreenBg
-import com.example.ui.theme.CyanPrimary
-import com.example.ui.theme.CyanPrimaryContainer
-import com.example.ui.theme.DarkBackground
-import com.example.ui.theme.DarkOutline
-import com.example.ui.theme.DarkSurface
-import com.example.ui.theme.DarkSurfaceCard
+import com.example.ui.theme.BentoAmber
+import com.example.ui.theme.BentoAmberBg
+import com.example.ui.theme.BentoBackground
+import com.example.ui.theme.BentoCardElevated
+import com.example.ui.theme.BentoGreen
+import com.example.ui.theme.BentoGreenBg
+import com.example.ui.theme.BentoOutline
+import com.example.ui.theme.BentoPurpleContainer
+import com.example.ui.theme.BentoPurpleLight
+import com.example.ui.theme.BentoPurplePrimary
+import com.example.ui.theme.BentoRed
+import com.example.ui.theme.BentoRedBg
+import com.example.ui.theme.BentoSurface
+import com.example.ui.theme.BentoSurfaceVariant
+import com.example.ui.theme.BentoTextMuted
+import com.example.ui.theme.BentoTextPrimary
+import com.example.ui.theme.BentoTextSecondary
 import com.example.ui.viewmodel.DeviceViewModel
 import com.example.ui.viewmodel.TimeFilter
+import com.example.util.LocationHelper
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -90,19 +100,21 @@ fun DeviceListScreen(
     onNavigateToSettings: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     val devices by viewModel.filteredDevices.collectAsStateWithLifecycle()
     val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
     val selectedFilter by viewModel.selectedFilter.collectAsStateWithLifecycle()
     val isServiceEnabled by viewModel.isServiceEnabled.collectAsStateWithLifecycle()
     val connectedCount by viewModel.connectedCount.collectAsStateWithLifecycle()
+    val todayEventsCount by viewModel.todayEventsCount.collectAsStateWithLifecycle()
+    val isAlertEnabled by viewModel.isDisconnectAlertEnabled.collectAsStateWithLifecycle()
 
     var showSimulateDialog by remember { mutableStateOf(false) }
-    var showBanner by remember { mutableStateOf(true) }
 
     Scaffold(
         modifier = modifier
             .fillMaxSize()
-            .background(DarkBackground)
+            .background(BentoBackground)
             .testTag("device_list_screen"),
         topBar = {
             TopAppBar(
@@ -110,46 +122,47 @@ fun DeviceListScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
                             modifier = Modifier
-                                .size(34.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(CyanPrimaryContainer),
+                                .size(38.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(BentoPurplePrimary)
+                                .border(1.dp, BentoPurpleLight.copy(alpha = 0.3f), RoundedCornerShape(12.dp)),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Bluetooth,
                                 contentDescription = null,
-                                tint = CyanPrimary,
-                                modifier = Modifier.size(20.dp)
+                                tint = BentoPurpleLight,
+                                modifier = Modifier.size(22.dp)
                             )
                         }
-                        Spacer(modifier = Modifier.width(10.dp))
+                        Spacer(modifier = Modifier.width(12.dp))
                         Column {
                             Text(
-                                text = "BT Watcher",
-                                style = MaterialTheme.typography.titleLarge,
+                                text = "Bluetooth Watcher",
+                                style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onBackground
+                                color = BentoTextPrimary
                             )
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Box(
                                     modifier = Modifier
-                                        .size(6.dp)
+                                        .size(7.dp)
                                         .clip(CircleShape)
-                                        .background(if (isServiceEnabled) ConnectGreen else Color.Gray)
+                                        .background(if (isServiceEnabled) BentoGreen else BentoTextMuted)
                                 )
-                                Spacer(modifier = Modifier.width(4.dp))
+                                Spacer(modifier = Modifier.width(5.dp))
                                 Text(
-                                    text = if (isServiceEnabled) "Dịch vụ đang chạy" else "Dịch vụ đã tắt",
+                                    text = if (isServiceEnabled) "Dịch vụ ngầm đang chạy" else "Dịch vụ đã tắt",
                                     style = MaterialTheme.typography.labelSmall,
-                                    color = if (isServiceEnabled) ConnectGreen else MaterialTheme.colorScheme.onSurfaceVariant,
-                                    fontSize = 10.sp
+                                    color = if (isServiceEnabled) BentoGreen else BentoTextMuted,
+                                    fontSize = 11.sp
                                 )
                             }
                         }
                     }
                 },
                 actions = {
-                    // Sync paired devices button
+                    // Sync paired devices
                     IconButton(
                         onClick = { viewModel.syncPairedDevices() },
                         modifier = Modifier.testTag("sync_paired_button")
@@ -157,7 +170,7 @@ fun DeviceListScreen(
                         Icon(
                             imageVector = Icons.Default.Sync,
                             contentDescription = "Đồng bộ thiết bị đã ghép đôi",
-                            tint = CyanPrimary
+                            tint = BentoPurpleLight
                         )
                     }
 
@@ -169,177 +182,304 @@ fun DeviceListScreen(
                         Icon(
                             imageVector = Icons.Default.Settings,
                             contentDescription = "Cài đặt",
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            tint = BentoTextSecondary
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = DarkSurface
+                    containerColor = BentoSurface
                 )
             )
         },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { showSimulateDialog = true },
-                containerColor = CyanPrimary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-                shape = RoundedCornerShape(16.dp),
-                modifier = Modifier.testTag("simulate_fab")
+                containerColor = BentoPurplePrimary,
+                contentColor = BentoPurpleLight,
+                shape = RoundedCornerShape(18.dp),
+                modifier = Modifier
+                    .border(1.dp, BentoPurpleLight.copy(alpha = 0.4f), RoundedCornerShape(18.dp))
+                    .testTag("simulate_fab")
             ) {
                 Row(
-                    modifier = Modifier.padding(horizontal = 16.dp),
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(imageVector = Icons.Default.Speed, contentDescription = "Thử nghiệm")
+                    Icon(
+                        imageVector = Icons.Default.Speed,
+                        contentDescription = "Mô phỏng",
+                        tint = BentoPurpleLight,
+                        modifier = Modifier.size(20.dp)
+                    )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Mô phỏng sự kiện",
+                        text = "Mô phỏng",
                         fontWeight = FontWeight.Bold,
-                        style = MaterialTheme.typography.labelLarge
+                        style = MaterialTheme.typography.labelLarge,
+                        color = BentoPurpleLight
                     )
                 }
             }
         }
     ) { paddingValues ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(DarkBackground)
+                .background(BentoBackground)
+                .testTag("devices_lazy_column"),
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 90.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Search Input Field
-            OutlinedTextField(
-                value = searchQuery,
-                onValueChange = { viewModel.searchQuery.value = it },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-                    .testTag("search_text_field"),
-                placeholder = {
-                    Text(
-                        "Tìm theo tên thiết bị, MAC hoặc địa điểm...",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = "Tìm kiếm",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                },
-                trailingIcon = {
-                    if (searchQuery.isNotBlank()) {
-                        IconButton(onClick = { viewModel.searchQuery.value = "" }) {
-                            Icon(
-                                imageVector = Icons.Default.Close,
-                                contentDescription = "Xóa tìm kiếm",
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            // --- BENTO HERO TILES ROW ---
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    // Bento Tile 1: Events Today in Bento Purple
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(24.dp))
+                            .background(BentoPurplePrimary)
+                            .border(1.dp, BentoPurpleLight.copy(alpha = 0.35f), RoundedCornerShape(24.dp))
+                            .padding(18.dp)
+                    ) {
+                        Column {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "SỰ KIỆN HÔM NAY",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    letterSpacing = 0.8.sp,
+                                    color = BentoPurpleLight.copy(alpha = 0.85f)
+                                )
+                                Icon(
+                                    imageVector = Icons.Default.Timeline,
+                                    contentDescription = null,
+                                    tint = BentoPurpleLight,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Text(
+                                text = "$todayEventsCount",
+                                style = MaterialTheme.typography.headlineLarge,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = BentoTextPrimary
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = "Lưu GPS & mốc giờ",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = BentoPurpleContainer.copy(alpha = 0.9f)
                             )
                         }
                     }
-                },
-                singleLine = true,
-                shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = CyanPrimary,
-                    unfocusedBorderColor = DarkOutline,
-                    focusedContainerColor = DarkSurfaceCard,
-                    unfocusedContainerColor = DarkSurfaceCard,
-                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface
-                )
-            )
 
-            // Filter Chips Row
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState())
-                    .padding(horizontal = 16.dp, vertical = 4.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                TimeFilter.entries.forEach { filter ->
-                    val isSelected = selectedFilter == filter
-                    FilterChip(
-                        selected = isSelected,
-                        onClick = { viewModel.selectedFilter.value = filter },
-                        label = {
+                    // Bento Tile 2: Connected / Drop Alert Status
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(24.dp))
+                            .background(BentoSurfaceVariant)
+                            .border(1.dp, BentoOutline, RoundedCornerShape(24.dp))
+                            .padding(18.dp)
+                    ) {
+                        Column {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "CẢNH BÁO RƠI RỚT",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    letterSpacing = 0.8.sp,
+                                    color = BentoPurpleLight
+                                )
+                                Icon(
+                                    imageVector = Icons.Default.NotificationsActive,
+                                    contentDescription = null,
+                                    tint = if (isAlertEnabled) BentoGreen else BentoTextMuted,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(10.dp)
+                                        .clip(CircleShape)
+                                        .background(if (connectedCount > 0) BentoGreen else BentoTextMuted)
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = "$connectedCount kết nối",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = BentoTextPrimary
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(4.dp))
                             Text(
-                                text = filter.label,
-                                style = MaterialTheme.typography.labelMedium,
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                text = if (isAlertEnabled) "Chuông & rung: BẬT" else "Chuông & rung: TẮT",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = if (isAlertEnabled) BentoGreen else BentoTextMuted
                             )
-                        },
-                        colors = FilterChipDefaults.filterChipColors(
-                            containerColor = DarkSurfaceCard,
-                            labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            selectedContainerColor = CyanPrimaryContainer,
-                            selectedLabelColor = CyanPrimary
-                        ),
-                        border = FilterChipDefaults.filterChipBorder(
-                            enabled = true,
-                            selected = isSelected,
-                            borderColor = if (isSelected) CyanPrimary else DarkOutline
-                        ),
-                        shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.testTag("filter_chip_${filter.name}")
+                        }
+                    }
+                }
+            }
+
+            // --- SEARCH BAR ---
+            item {
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { viewModel.searchQuery.value = it },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("search_text_field"),
+                    placeholder = {
+                        Text(
+                            "Tìm theo tên thiết bị, MAC hoặc địa chỉ...",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = BentoTextMuted
+                        )
+                    },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = "Tìm kiếm",
+                            tint = BentoPurpleLight
+                        )
+                    },
+                    trailingIcon = {
+                        if (searchQuery.isNotBlank()) {
+                            IconButton(onClick = { viewModel.searchQuery.value = "" }) {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = "Xóa",
+                                    tint = BentoTextMuted
+                                )
+                            }
+                        }
+                    },
+                    singleLine = true,
+                    shape = RoundedCornerShape(16.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = BentoPurpleLight,
+                        unfocusedBorderColor = BentoOutline,
+                        focusedContainerColor = BentoSurface,
+                        unfocusedContainerColor = BentoSurface,
+                        focusedTextColor = BentoTextPrimary,
+                        unfocusedTextColor = BentoTextPrimary
                     )
-                }
-            }
-
-            // Stats summary & Information Banner
-            if (showBanner) {
-                Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)) {
-                    WarningBanner()
-                }
-            }
-
-            // Device list or empty state
-            if (devices.isEmpty()) {
-                EmptyStateView(
-                    searchQuery = searchQuery,
-                    selectedFilter = selectedFilter,
-                    onSyncPaired = { viewModel.syncPairedDevices() },
-                    onSimulateDemo = { showSimulateDialog = true }
                 )
-            } else {
+            }
+
+            // --- FILTER CHIPS ROW ---
+            item {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 6.dp),
+                        .horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    TimeFilter.entries.forEach { filter ->
+                        val isSelected = selectedFilter == filter
+                        FilterChip(
+                            selected = isSelected,
+                            onClick = { viewModel.selectedFilter.value = filter },
+                            label = {
+                                Text(
+                                    text = filter.label,
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                )
+                            },
+                            colors = FilterChipDefaults.filterChipColors(
+                                containerColor = BentoSurface,
+                                labelColor = BentoTextSecondary,
+                                selectedContainerColor = BentoPurplePrimary,
+                                selectedLabelColor = BentoPurpleLight
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = isSelected,
+                                borderColor = if (isSelected) BentoPurpleLight else BentoOutline
+                            ),
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier.testTag("filter_chip_${filter.name}")
+                        )
+                    }
+                }
+            }
+
+            // --- WARNING BANNER / OPERATION NOTES ---
+            item {
+                WarningBanner()
+            }
+
+            // --- SECTION TITLE ---
+            item {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 4.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Đã tìm thấy ${devices.size} thiết bị",
+                        text = "HOẠT ĐỘNG GẦN ĐÂY (${devices.size})",
                         style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.sp,
+                        color = BentoPurpleLight
                     )
                     if (connectedCount > 0) {
                         Text(
                             text = "● $connectedCount đang kết nối",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = ConnectGreen,
-                            fontWeight = FontWeight.SemiBold
+                            style = MaterialTheme.typography.labelSmall,
+                            color = BentoGreen,
+                            fontWeight = FontWeight.Bold
                         )
                     }
                 }
+            }
 
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .testTag("devices_lazy_column"),
-                    contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 6.dp, bottom = 80.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    items(devices, key = { it.id }) { device ->
-                        DeviceCard(
-                            device = device,
-                            onClick = { onDeviceClick(device.id) }
-                        )
-                    }
+            // --- DEVICE ITEMS OR EMPTY STATE ---
+            if (devices.isEmpty()) {
+                item {
+                    EmptyStateView(
+                        searchQuery = searchQuery,
+                        selectedFilter = selectedFilter,
+                        onSyncPaired = { viewModel.syncPairedDevices() },
+                        onSimulateDemo = { showSimulateDialog = true }
+                    )
+                }
+            } else {
+                items(devices, key = { it.id }) { device ->
+                    DeviceCard(
+                        device = device,
+                        onClick = { onDeviceClick(device.id) },
+                        onMapClick = if (device.lastLatitude != null && device.lastLongitude != null) {
+                            {
+                                LocationHelper.openLocationInMap(
+                                    context = context,
+                                    latitude = device.lastLatitude,
+                                    longitude = device.lastLongitude,
+                                    label = "${device.name} (${device.macAddress})"
+                                )
+                            }
+                        } else null
+                    )
                 }
             }
         }
@@ -365,79 +505,95 @@ private fun EmptyStateView(
     onSimulateDemo: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
+    Box(
         modifier = modifier
-            .fillMaxSize()
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(24.dp))
+            .background(BentoSurface)
+            .border(1.dp, BentoOutline, RoundedCornerShape(24.dp))
             .padding(32.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        contentAlignment = Alignment.Center
     ) {
-        Box(
-            modifier = Modifier
-                .size(80.dp)
-                .clip(CircleShape)
-                .background(CyanPrimaryContainer.copy(alpha = 0.5f))
-                .border(1.dp, CyanPrimary.copy(alpha = 0.5f), CircleShape),
-            contentAlignment = Alignment.Center
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            Icon(
-                imageVector = Icons.Default.BluetoothSearching,
-                contentDescription = null,
-                tint = CyanPrimary,
-                modifier = Modifier.size(44.dp)
+            Box(
+                modifier = Modifier
+                    .size(72.dp)
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(BentoPurplePrimary)
+                    .border(1.dp, BentoPurpleLight.copy(alpha = 0.4f), RoundedCornerShape(20.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.BluetoothSearching,
+                    contentDescription = null,
+                    tint = BentoPurpleLight,
+                    modifier = Modifier.size(38.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = if (searchQuery.isNotBlank() || selectedFilter != TimeFilter.ALL)
+                    "Không tìm thấy thiết bị phù hợp"
+                else
+                    "Chưa có lịch sử kết nối Bluetooth",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = BentoTextPrimary,
+                textAlign = TextAlign.Center
             )
-        }
 
-        Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-        Text(
-            text = if (searchQuery.isNotBlank() || selectedFilter != TimeFilter.ALL)
-                "Không tìm thấy thiết bị phù hợp"
-            else
-                "Chưa có lịch sử kết nối Bluetooth",
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onBackground,
-            textAlign = TextAlign.Center
-        )
+            Text(
+                text = if (searchQuery.isNotBlank() || selectedFilter != TimeFilter.ALL)
+                    "Thử xóa bộ lọc hoặc tìm kiếm với từ khóa khác."
+                else
+                    "Khi kết nối hoặc ngắt kết nối với tai nghe, loa, đồng hồ Bluetooth, app sẽ tự động ghi lại thời gian và vị trí GPS.",
+                style = MaterialTheme.typography.bodySmall,
+                color = BentoTextSecondary,
+                textAlign = TextAlign.Center,
+                lineHeight = 18.sp
+            )
 
-        Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
-        Text(
-            text = if (searchQuery.isNotBlank() || selectedFilter != TimeFilter.ALL)
-                "Thử xóa bộ lọc hoặc tìm kiếm với từ khóa khác."
-            else
-                "Khi bạn kết nối hoặc ngắt kết nối với tai nghe, loa, đồng hồ Bluetooth, app sẽ tự động ghi lại thời gian và vị trí GPS.",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
-            lineHeight = 18.sp
-        )
+            Button(
+                onClick = onSyncPaired,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = BentoPurplePrimary,
+                    contentColor = BentoPurpleLight
+                ),
+                shape = RoundedCornerShape(14.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(imageVector = Icons.Default.Sync, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Lấy thiết bị đã ghép đôi", fontWeight = FontWeight.SemiBold)
+            }
 
-        Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
-        Button(
-            onClick = onSyncPaired,
-            colors = ButtonDefaults.buttonColors(containerColor = CyanPrimary),
-            shape = RoundedCornerShape(12.dp),
-            modifier = Modifier.fillMaxWidth(0.85f)
-        ) {
-            Icon(imageVector = Icons.Default.Sync, contentDescription = null, modifier = Modifier.size(18.dp))
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Lấy thiết bị đã ghép đôi", fontWeight = FontWeight.SemiBold)
-        }
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        OutlinedButton(
-            onClick = onSimulateDemo,
-            shape = RoundedCornerShape(12.dp),
-            modifier = Modifier.fillMaxWidth(0.85f),
-            colors = ButtonDefaults.outlinedButtonColors(contentColor = CyanPrimary)
-        ) {
-            Icon(imageVector = Icons.Default.Speed, contentDescription = null, modifier = Modifier.size(18.dp))
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Thêm dữ liệu mẫu để test", fontWeight = FontWeight.SemiBold)
+            OutlinedButton(
+                onClick = onSimulateDemo,
+                shape = RoundedCornerShape(14.dp),
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = BentoPurpleLight,
+                    containerColor = BentoSurfaceVariant
+                ),
+                border = ButtonDefaults.outlinedButtonBorder.copy(
+                    brush = androidx.compose.ui.graphics.SolidColor(BentoOutline)
+                )
+            ) {
+                Icon(imageVector = Icons.Default.Speed, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Thêm dữ liệu mẫu để thử nghiệm", fontWeight = FontWeight.SemiBold)
+            }
         }
     }
 }
@@ -461,7 +617,8 @@ private fun SimulateEventDialog(
             Text(
                 "Mô phỏng sự kiện Bluetooth",
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = BentoTextPrimary
             )
         },
         text = {
@@ -469,7 +626,7 @@ private fun SimulateEventDialog(
                 Text(
                     "Chọn một thiết bị mẫu và sự kiện để tạo dữ liệu tức thì (phù hợp kiểm tra trên máy ảo Emulator):",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = BentoTextSecondary
                 )
 
                 Spacer(modifier = Modifier.height(14.dp))
@@ -485,20 +642,21 @@ private fun SimulateEventDialog(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 4.dp),
-                        colors = CardDefaults.cardColors(containerColor = DarkSurfaceCard),
-                        shape = RoundedCornerShape(10.dp)
+                        colors = CardDefaults.cardColors(containerColor = BentoSurfaceVariant),
+                        shape = RoundedCornerShape(14.dp),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, BentoOutline)
                     ) {
-                        Column(modifier = Modifier.padding(10.dp)) {
+                        Column(modifier = Modifier.padding(12.dp)) {
                             Text(
                                 text = name,
                                 style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurface
+                                color = BentoTextPrimary
                             )
                             Text(
                                 text = "📍 $address",
                                 style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                color = BentoTextSecondary,
                                 fontSize = 11.sp
                             )
                             Spacer(modifier = Modifier.height(6.dp))
@@ -509,13 +667,13 @@ private fun SimulateEventDialog(
                                 TextButton(
                                     onClick = { onSimulate(name, mac, type, "CONNECT", lat, lon, address) }
                                 ) {
-                                    Text("Kết nối", color = ConnectGreen, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                                    Text("Kết nối", color = BentoGreen, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                                 }
                                 Spacer(modifier = Modifier.width(4.dp))
                                 TextButton(
                                     onClick = { onSimulate(name, mac, type, "DISCONNECT", lat, lon, address) }
                                 ) {
-                                    Text("Ngắt kết nối", color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                                    Text("Ngắt kết nối", color = BentoRed, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                                 }
                             }
                         }
@@ -525,9 +683,11 @@ private fun SimulateEventDialog(
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text("Đóng")
+                Text("Đóng", color = BentoPurpleLight)
             }
         },
-        containerColor = DarkSurface
+        containerColor = BentoSurface,
+        shape = RoundedCornerShape(24.dp)
     )
 }
+

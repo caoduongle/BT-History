@@ -54,12 +54,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ui.components.WarningBanner
-import com.example.ui.theme.ConnectGreen
-import com.example.ui.theme.CyanPrimary
-import com.example.ui.theme.CyanPrimaryContainer
-import com.example.ui.theme.DarkBackground
-import com.example.ui.theme.DarkOutline
-import com.example.ui.theme.DarkSurfaceCard
+import com.example.ui.theme.BentoBackground
+import com.example.ui.theme.BentoGreen
+import com.example.ui.theme.BentoGreenBg
+import com.example.ui.theme.BentoOutline
+import com.example.ui.theme.BentoPurpleLight
+import com.example.ui.theme.BentoPurplePrimary
+import com.example.ui.theme.BentoSurface
+import com.example.ui.theme.BentoSurfaceVariant
+import com.example.ui.theme.BentoTextMuted
+import com.example.ui.theme.BentoTextPrimary
+import com.example.ui.theme.BentoTextSecondary
 import com.example.util.BluetoothHelper
 
 @Composable
@@ -74,7 +79,7 @@ fun PermissionOnboardingScreen(
 
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
-    ) { permissions ->
+    ) { _ ->
         hasBtPermission = BluetoothHelper.hasBluetoothConnectPermission(context)
         hasLocPermission = BluetoothHelper.hasLocationPermission(context)
         hasNotifPermission = BluetoothHelper.hasNotificationPermission(context)
@@ -88,7 +93,7 @@ fun PermissionOnboardingScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(DarkBackground)
+            .background(BentoBackground)
             .verticalScroll(rememberScrollState())
             .padding(24.dp)
             .testTag("onboarding_screen"),
@@ -99,35 +104,35 @@ fun PermissionOnboardingScreen(
         // App Logo & Header
         Box(
             modifier = Modifier
-                .size(72.dp)
-                .clip(CircleShape)
-                .background(CyanPrimaryContainer)
-                .border(2.dp, CyanPrimary, CircleShape),
+                .size(76.dp)
+                .clip(RoundedCornerShape(22.dp))
+                .background(BentoPurplePrimary)
+                .border(1.dp, BentoPurpleLight.copy(alpha = 0.4f), RoundedCornerShape(22.dp)),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = Icons.Default.Bluetooth,
                 contentDescription = "BT Watcher",
-                tint = CyanPrimary,
-                modifier = Modifier.size(40.dp)
+                tint = BentoPurpleLight,
+                modifier = Modifier.size(42.dp)
             )
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(18.dp))
 
         Text(
             text = "Chào mừng tới BT Watcher",
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onBackground
+            color = BentoTextPrimary
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "Để ghi lại lịch sử kết nối và vị trí GPS của các thiết bị Bluetooth, ứng dụng cần các quyền hệ thống sau:",
+            text = "Để ghi lại mốc giờ kết nối và vị trí GPS của thiết bị Bluetooth khi ngắt/kết nối, app cần quyền hệ thống sau:",
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = BentoTextSecondary,
             textAlign = TextAlign.Center,
             lineHeight = 20.sp
         )
@@ -139,7 +144,7 @@ fun PermissionOnboardingScreen(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Permission Items Cards
+        // Permission Items Cards in Bento Style
         PermissionItemCard(
             icon = Icons.Default.Bluetooth,
             title = "1. Quyền Bluetooth",
@@ -187,22 +192,24 @@ fun PermissionOnboardingScreen(
                 .fillMaxWidth()
                 .height(52.dp)
                 .testTag("grant_permissions_button"),
-            shape = RoundedCornerShape(14.dp),
+            shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = CyanPrimary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
+                containerColor = BentoPurplePrimary,
+                contentColor = BentoPurpleLight
             )
         ) {
             Icon(
                 imageVector = Icons.Default.Shield,
                 contentDescription = null,
+                tint = BentoPurpleLight,
                 modifier = Modifier.size(20.dp)
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = "Cấp quyền & Bắt đầu",
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = BentoPurpleLight
             )
         }
 
@@ -213,16 +220,19 @@ fun PermissionOnboardingScreen(
             onClick = onPermissionsGranted,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(44.dp)
+                .height(46.dp)
                 .testTag("skip_onboarding_button"),
-            shape = RoundedCornerShape(12.dp),
+            shape = RoundedCornerShape(14.dp),
             colors = ButtonDefaults.outlinedButtonColors(
-                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+                contentColor = BentoTextSecondary,
+                containerColor = BentoSurfaceVariant
+            ),
+            border = androidx.compose.foundation.BorderStroke(1.dp, BentoOutline)
         ) {
             Text(
                 text = "Bỏ qua / Vào giao diện chính",
-                style = MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.bodyMedium,
+                color = BentoTextSecondary
             )
         }
 
@@ -241,36 +251,36 @@ private fun PermissionItemCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(14.dp))
-            .border(1.dp, if (isGranted) ConnectGreen.copy(alpha = 0.5f) else DarkOutline, RoundedCornerShape(14.dp)),
+            .clip(RoundedCornerShape(20.dp))
+            .border(1.dp, if (isGranted) BentoGreen.copy(alpha = 0.5f) else BentoOutline, RoundedCornerShape(20.dp)),
         colors = CardDefaults.cardColors(
-            containerColor = DarkSurfaceCard
+            containerColor = BentoSurface
         ),
-        shape = RoundedCornerShape(14.dp)
+        shape = RoundedCornerShape(20.dp)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(14.dp),
+                .padding(16.dp),
             verticalAlignment = Alignment.Top
         ) {
             Box(
                 modifier = Modifier
-                    .size(40.dp)
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(if (isGranted) ConnectGreen.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surface)
-                    .border(1.dp, if (isGranted) ConnectGreen.copy(alpha = 0.3f) else DarkOutline, RoundedCornerShape(10.dp)),
+                    .size(44.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(if (isGranted) BentoGreenBg else BentoPurplePrimary)
+                    .border(1.dp, if (isGranted) BentoGreen.copy(alpha = 0.3f) else BentoPurpleLight.copy(alpha = 0.3f), RoundedCornerShape(14.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = if (isGranted) ConnectGreen else CyanPrimary,
+                    tint = if (isGranted) BentoGreen else BentoPurpleLight,
                     modifier = Modifier.size(22.dp)
                 )
             }
 
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(14.dp))
 
             Column(modifier = Modifier.weight(1f)) {
                 Row(
@@ -282,7 +292,7 @@ private fun PermissionItemCard(
                         text = title,
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = BentoTextPrimary
                     )
 
                     if (isGranted) {
@@ -290,14 +300,14 @@ private fun PermissionItemCard(
                             Icon(
                                 imageVector = Icons.Default.CheckCircle,
                                 contentDescription = "Đã cấp",
-                                tint = ConnectGreen,
+                                tint = BentoGreen,
                                 modifier = Modifier.size(16.dp)
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
                                 text = "Đã cấp",
                                 style = MaterialTheme.typography.labelSmall,
-                                color = ConnectGreen,
+                                color = BentoGreen,
                                 fontWeight = FontWeight.SemiBold
                             )
                         }
@@ -309,10 +319,11 @@ private fun PermissionItemCard(
                 Text(
                     text = description,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = BentoTextSecondary,
                     lineHeight = 18.sp
                 )
             }
         }
     }
 }
+
