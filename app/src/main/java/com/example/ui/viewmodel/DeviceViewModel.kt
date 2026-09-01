@@ -25,12 +25,15 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-enum class TimeFilter(val label: String) {
-    ALL("Tất cả"),
-    CONNECTED("Đang kết nối"),
-    TODAY("Hôm nay"),
-    YESTERDAY("Hôm qua"),
-    LAST_7_DAYS("7 ngày qua")
+import androidx.annotation.StringRes
+import com.example.R
+
+enum class TimeFilter(val label: String, @get:StringRes val titleRes: Int) {
+    ALL("Tất cả", R.string.filter_all),
+    CONNECTED("Đang kết nối", R.string.filter_connected),
+    TODAY("Hôm nay", R.string.filter_today),
+    YESTERDAY("Hôm qua", R.string.filter_yesterday),
+    LAST_7_DAYS("7 ngày qua", R.string.filter_last_7_days)
 }
 
 class DeviceViewModel(

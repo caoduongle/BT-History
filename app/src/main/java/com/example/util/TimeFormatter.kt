@@ -1,5 +1,7 @@
 package com.example.util
 
+import android.content.Context
+import com.example.R
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -13,6 +15,11 @@ object TimeFormatter {
 
     fun formatFullDateTime(timestamp: Long): String {
         if (timestamp <= 0) return "Chưa xác định"
+        return fullDateTimeFormat.format(Date(timestamp))
+    }
+
+    fun formatFullDateTime(context: Context, timestamp: Long): String {
+        if (timestamp <= 0) return context.getString(R.string.time_unknown)
         return fullDateTimeFormat.format(Date(timestamp))
     }
 
@@ -34,6 +41,28 @@ object TimeFormatter {
             hours < 24 -> "$hours giờ trước"
             days == 1L -> "Hôm qua lúc ${timeOnlyFormat.format(Date(timestamp))}"
             days < 7 -> "$days ngày trước"
+            else -> dateOnlyFormat.format(Date(timestamp))
+        }
+    }
+
+    fun formatRelativeTime(context: Context, timestamp: Long): String {
+        if (timestamp <= 0) return context.getString(R.string.time_unknown)
+        val now = System.currentTimeMillis()
+        val diff = now - timestamp
+
+        if (diff < 0) return context.getString(R.string.time_just_now)
+
+        val seconds = diff / 1000
+        val minutes = seconds / 60
+        val hours = minutes / 60
+        val days = hours / 24
+
+        return when {
+            seconds < 45 -> context.getString(R.string.time_just_now)
+            minutes < 60 -> context.getString(R.string.time_minutes_ago, minutes)
+            hours < 24 -> context.getString(R.string.time_hours_ago, hours)
+            days == 1L -> context.getString(R.string.time_yesterday_at, timeOnlyFormat.format(Date(timestamp)))
+            days < 7 -> context.getString(R.string.time_days_ago, days)
             else -> dateOnlyFormat.format(Date(timestamp))
         }
     }
@@ -61,6 +90,11 @@ object TimeFormatter {
 
     fun formatCoordinates(lat: Double?, lon: Double?): String {
         if (lat == null || lon == null) return "Chưa có tọa độ GPS"
+        return String.format(Locale.US, "%.5f, %.5f", lat, lon)
+    }
+
+    fun formatCoordinates(context: Context, lat: Double?, lon: Double?): String {
+        if (lat == null || lon == null) return context.getString(R.string.location_no_coordinates)
         return String.format(Locale.US, "%.5f, %.5f", lat, lon)
     }
 }

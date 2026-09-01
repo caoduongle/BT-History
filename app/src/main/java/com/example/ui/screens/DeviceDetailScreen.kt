@@ -53,7 +53,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
+import com.example.R
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -104,7 +106,7 @@ fun DeviceDetailScreen(
                 .background(BentoBackground),
             contentAlignment = Alignment.Center
         ) {
-            Text("Không tìm thấy thông tin thiết bị", color = BentoTextMuted)
+            Text(stringResource(R.string.device_not_found), color = BentoTextMuted)
         }
         return
     }
@@ -138,7 +140,7 @@ fun DeviceDetailScreen(
                     IconButton(onClick = onBack, modifier = Modifier.testTag("detail_back_button")) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Quay lại",
+                            contentDescription = stringResource(R.string.cd_back),
                             tint = BentoTextPrimary
                         )
                     }
@@ -147,7 +149,7 @@ fun DeviceDetailScreen(
                     IconButton(onClick = { showMenu = true }) {
                         Icon(
                             imageVector = Icons.Default.MoreVert,
-                            contentDescription = "Tùy chọn",
+                            contentDescription = stringResource(R.string.cd_options),
                             tint = BentoTextPrimary
                         )
                     }
@@ -158,7 +160,7 @@ fun DeviceDetailScreen(
                         modifier = Modifier.background(BentoSurface)
                     ) {
                         DropdownMenuItem(
-                            text = { Text("Mô phỏng Kết nối", color = BentoTextPrimary) },
+                            text = { Text(stringResource(R.string.menu_simulate_connect), color = BentoTextPrimary) },
                             onClick = {
                                 showMenu = false
                                 viewModel.simulateTestEvent(
@@ -174,7 +176,7 @@ fun DeviceDetailScreen(
                         )
 
                         DropdownMenuItem(
-                            text = { Text("Mô phỏng Ngắt kết nối", color = BentoTextPrimary) },
+                            text = { Text(stringResource(R.string.menu_simulate_disconnect), color = BentoTextPrimary) },
                             onClick = {
                                 showMenu = false
                                 viewModel.simulateTestEvent(
@@ -190,7 +192,7 @@ fun DeviceDetailScreen(
                         )
 
                         DropdownMenuItem(
-                            text = { Text("Xóa thiết bị này", color = BentoRed) },
+                            text = { Text(stringResource(R.string.menu_delete_device), color = BentoRed) },
                             onClick = {
                                 showMenu = false
                                 showDeleteConfirm = true
@@ -231,7 +233,7 @@ fun DeviceDetailScreen(
                             context = context,
                             latitude = lat,
                             longitude = lon,
-                            label = "Lần cuối thấy ${currentDevice.name}"
+                            label = context.getString(R.string.label_last_seen_device, currentDevice.name)
                         )
                     }
                 )
@@ -247,7 +249,7 @@ fun DeviceDetailScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "LỊCH SỬ SỰ KIỆN (${events.size})",
+                        text = stringResource(R.string.section_event_history, events.size),
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 1.sp,
@@ -255,7 +257,7 @@ fun DeviceDetailScreen(
                     )
 
                     Text(
-                        text = "Mới nhất ở trên",
+                        text = stringResource(R.string.label_newest_first),
                         style = MaterialTheme.typography.labelSmall,
                         color = BentoTextMuted
                     )
@@ -275,7 +277,7 @@ fun DeviceDetailScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "Chưa có sự kiện nào được ghi nhận cho thiết bị này.",
+                            text = stringResource(R.string.empty_device_events),
                             style = MaterialTheme.typography.bodyMedium,
                             color = BentoTextMuted
                         )
@@ -302,8 +304,8 @@ fun DeviceDetailScreen(
     if (showDeleteConfirm) {
         AlertDialog(
             onDismissRequest = { showDeleteConfirm = false },
-            title = { Text("Xóa thiết bị?", color = BentoTextPrimary, fontWeight = FontWeight.Bold) },
-            text = { Text("Toàn bộ lịch sử kết nối và tọa độ GPS của \"${currentDevice.name}\" sẽ bị xóa khỏi máy.", color = BentoTextSecondary) },
+            title = { Text(stringResource(R.string.dialog_delete_title), color = BentoTextPrimary, fontWeight = FontWeight.Bold) },
+            text = { Text(stringResource(R.string.dialog_delete_message, currentDevice.name), color = BentoTextSecondary) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -312,12 +314,12 @@ fun DeviceDetailScreen(
                         onBack()
                     }
                 ) {
-                    Text("Xóa", color = BentoRed, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.btn_delete), color = BentoRed, fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteConfirm = false }) {
-                    Text("Hủy", color = BentoPurpleLight)
+                    Text(stringResource(R.string.btn_cancel), color = BentoPurpleLight)
                 }
             },
             containerColor = BentoSurface,
@@ -372,7 +374,7 @@ private fun DeviceHeaderCard(
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
-                    text = "Loại: ${device.deviceType} • MAC: ${device.macAddress}",
+                    text = stringResource(R.string.device_type_and_mac_format, device.deviceType, device.macAddress),
                     style = MaterialTheme.typography.bodySmall,
                     color = BentoTextMuted,
                     fontSize = 11.sp
@@ -396,6 +398,7 @@ private fun LastSeenCard(
     val longitude = lastDisconnectEvent?.longitude ?: device.lastLongitude
     val address = lastDisconnectEvent?.locationAddress ?: device.lastLocationAddress
     val hasLocation = latitude != null && longitude != null
+    val context = LocalContext.current
 
     Card(
         modifier = modifier
@@ -430,7 +433,7 @@ private fun LastSeenCard(
                 ) {
                     Icon(
                         imageVector = Icons.Default.PinDrop,
-                        contentDescription = "Last seen",
+                        contentDescription = stringResource(R.string.cd_last_seen),
                         tint = BentoPurpleLight,
                         modifier = Modifier.size(20.dp)
                     )
@@ -440,14 +443,14 @@ private fun LastSeenCard(
 
                 Column {
                     Text(
-                        text = "LẦN CUỐI CÙNG THẤY THIẾT BỊ",
+                        text = stringResource(R.string.tile_last_seen_title),
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Bold,
                         color = BentoPurpleLight,
                         letterSpacing = 0.8.sp
                     )
                     Text(
-                        text = "Thời gian & vị trí ngắt kết nối gần nhất",
+                        text = stringResource(R.string.tile_last_seen_subtitle),
                         style = MaterialTheme.typography.bodySmall,
                         color = BentoTextMuted,
                         fontSize = 11.sp
@@ -468,13 +471,13 @@ private fun LastSeenCard(
                 Spacer(modifier = Modifier.width(8.dp))
                 Column {
                     Text(
-                        text = TimeFormatter.formatFullDateTime(timestamp),
+                        text = TimeFormatter.formatFullDateTime(context, timestamp),
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = BentoTextPrimary
                     )
                     Text(
-                        text = "(${TimeFormatter.formatRelativeTime(timestamp)})",
+                        text = "(${TimeFormatter.formatRelativeTime(context, timestamp)})",
                         style = MaterialTheme.typography.bodySmall,
                         color = BentoTextSecondary,
                         fontSize = 11.sp
@@ -496,14 +499,14 @@ private fun LastSeenCard(
                 Column {
                     if (hasLocation) {
                         Text(
-                            text = address ?: "Tọa độ GPS:",
+                            text = address ?: stringResource(R.string.label_gps_coordinates),
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Medium,
                             color = BentoTextPrimary
                         )
                         Spacer(modifier = Modifier.height(2.dp))
                         Text(
-                            text = TimeFormatter.formatCoordinates(latitude, longitude),
+                            text = TimeFormatter.formatCoordinates(context, latitude, longitude),
                             style = MaterialTheme.typography.bodySmall,
                             fontFamily = FontFamily.Monospace,
                             color = BentoPurpleLight,
@@ -511,7 +514,7 @@ private fun LastSeenCard(
                         )
                     } else {
                         Text(
-                            text = "Chưa ghi nhận tọa độ GPS cho lần ngắt này",
+                            text = stringResource(R.string.location_not_recorded_for_disconnect),
                             style = MaterialTheme.typography.bodyMedium,
                             color = BentoTextMuted
                         )
@@ -549,7 +552,7 @@ private fun LastSeenCard(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = if (hasLocation) "Xem vị trí trên bản đồ" else "Không có tọa độ để mở bản đồ",
+                    text = if (hasLocation) stringResource(R.string.btn_view_on_map) else stringResource(R.string.btn_no_coordinates_for_map),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
                     color = if (hasLocation) BentoPurpleLight else BentoTextMuted

@@ -43,8 +43,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
+import com.example.R
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -173,7 +176,7 @@ fun DeviceCard(
                     ) {
                         Icon(
                             imageVector = Icons.Default.LocationOn,
-                            contentDescription = "Vị trí",
+                            contentDescription = stringResource(R.string.cd_location),
                             tint = BentoPurpleLight,
                             modifier = Modifier.size(15.dp)
                         )
@@ -181,7 +184,7 @@ fun DeviceCard(
                         Text(
                             text = device.lastLocationAddress
                                 ?: if (device.lastLatitude != null) TimeFormatter.formatCoordinates(device.lastLatitude, device.lastLongitude)
-                                else "Chưa có tọa độ GPS",
+                                else stringResource(R.string.location_no_coordinates),
                             style = MaterialTheme.typography.bodySmall,
                             color = BentoTextSecondary,
                             maxLines = 1,
@@ -203,13 +206,13 @@ fun DeviceCard(
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(
                                     imageVector = Icons.Default.Map,
-                                    contentDescription = "Mở Map",
+                                    contentDescription = stringResource(R.string.cd_open_map),
                                     tint = BentoPurpleLight,
                                     modifier = Modifier.size(12.dp)
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text(
-                                    text = "Bản đồ",
+                                    text = stringResource(R.string.btn_map),
                                     style = MaterialTheme.typography.labelSmall,
                                     color = BentoPurpleLight,
                                     fontSize = 10.sp
@@ -219,7 +222,7 @@ fun DeviceCard(
                     } else {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                            contentDescription = "Chi tiết",
+                            contentDescription = stringResource(R.string.cd_details),
                             tint = BentoTextMuted,
                             modifier = Modifier.size(16.dp)
                         )
@@ -267,8 +270,9 @@ fun StatusBadge(
                 .background(if (isConnected) BentoGreen else BentoRed)
         )
         Spacer(modifier = Modifier.width(6.dp))
+        val context = LocalContext.current
         Text(
-            text = if (isConnected) "Kết nối" else TimeFormatter.formatRelativeTime(timestamp),
+            text = if (isConnected) stringResource(R.string.status_connected_short) else TimeFormatter.formatRelativeTime(context, timestamp),
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.SemiBold,
             color = if (isConnected) BentoGreen else BentoRed,

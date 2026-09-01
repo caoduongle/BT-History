@@ -1,3 +1,162 @@
 <resources>
     <string name="app_name">BT Watcher</string>
+
+    <!-- General Actions &amp; Buttons -->
+    <string name="btn_close">Đóng</string>
+    <string name="btn_delete">Xóa</string>
+    <string name="btn_cancel">Hủy</string>
+    <string name="btn_map">Bản đồ</string>
+    <string name="btn_connect">Kết nối</string>
+    <string name="btn_disconnect">Ngắt kết nối</string>
+    <string name="btn_view_on_map">Xem vị trí trên bản đồ</string>
+    <string name="btn_no_coordinates_for_map">Không có tọa độ để mở bản đồ</string>
+    <string name="btn_get_paired_devices">Lấy thiết bị đã ghép đôi</string>
+    <string name="btn_add_sample_data">Thêm dữ liệu mẫu để thử nghiệm</string>
+    <string name="btn_sync_paired">Quét &amp; đồng bộ thiết bị đã ghép đôi</string>
+    <string name="btn_check_permissions">Kiểm tra &amp; Cấp lại quyền hệ thống</string>
+    <string name="btn_clear_all_history">Xóa toàn bộ lịch sử thiết bị &amp; sự kiện</string>
+    <string name="btn_confirm_clear_all">Xóa tất cả</string>
+    <string name="btn_grant_and_start">Cấp quyền &amp; Bắt đầu</string>
+    <string name="btn_skip_to_main">Bỏ qua / Vào giao diện chính</string>
+    <string name="btn_simulate">Mô phỏng</string>
+
+    <!-- Content Descriptions -->
+    <string name="cd_location">Vị trí</string>
+    <string name="cd_open_map">Mở Map</string>
+    <string name="cd_details">Chi tiết</string>
+    <string name="cd_view_map">Xem bản đồ</string>
+    <string name="cd_unexpected_disconnect">Ngắt kết nối bất ngờ</string>
+    <string name="cd_important_notice">Lưu ý quan trọng</string>
+    <string name="cd_sync_paired_devices">Đồng bộ thiết bị đã ghép đôi</string>
+    <string name="cd_settings">Cài đặt</string>
+    <string name="cd_search">Tìm kiếm</string>
+    <string name="cd_clear">Xóa</string>
+    <string name="cd_back">Quay lại</string>
+    <string name="cd_options">Tùy chọn</string>
+    <string name="cd_last_seen">Last seen</string>
+
+    <!-- TimeFilter Enum -->
+    <string name="filter_all">Tất cả</string>
+    <string name="filter_connected">Đang kết nối</string>
+    <string name="filter_today">Hôm nay</string>
+    <string name="filter_yesterday">Hôm qua</string>
+    <string name="filter_last_7_days">7 ngày qua</string>
+
+    <!-- Relative Time &amp; Formatter -->
+    <string name="time_just_now">Vừa xong</string>
+    <string name="time_minutes_ago">%d phút trước</string>
+    <string name="time_hours_ago">%d giờ trước</string>
+    <string name="time_yesterday_at">Hôm qua lúc %s</string>
+    <string name="time_days_ago">%d ngày trước</string>
+    <string name="time_unknown">Chưa xác định</string>
+
+    <!-- Location &amp; Coordinates -->
+    <string name="location_unknown_coordinates">Chưa xác định tọa độ GPS</string>
+    <string name="location_no_coordinates">Chưa có tọa độ GPS</string>
+    <string name="location_fetch_error">Không thể lấy vị trí hiện tại</string>
+    <string name="location_unavailable_at_event">📍 Không lấy được vị trí GPS tại thời điểm này</string>
+    <string name="location_not_recorded_for_disconnect">Chưa ghi nhận tọa độ GPS cho lần ngắt này</string>
+    <string name="toast_no_coordinates">Không có tọa độ GPS cho sự kiện này</string>
+    <string name="toast_cannot_open_map">Không thể mở ứng dụng bản đồ</string>
+    <string name="label_gps_coordinates">Tọa độ GPS:</string>
+    <string name="gps_accuracy_format">Độ chính xác GPS: ±%dm</string>
+    <string name="map_pin_label_format">%1$s (%2$s)</string>
+    <string name="label_last_seen_device">Lần cuối thấy %s</string>
+
+    <!-- Device &amp; Status Fallbacks -->
+    <string name="device_default_name">Thiết bị Bluetooth</string>
+    <string name="device_unknown_name">Thiết bị không rõ</string>
+    <string name="device_name_with_mac_suffix">Thiết bị (%s)</string>
+    <string name="device_type_audio">Tai nghe/Loa</string>
+    <string name="device_type_watch">Đồng hồ thông minh</string>
+    <string name="device_type_phone">Điện thoại</string>
+    <string name="device_type_other">Khác</string>
+    <string name="status_connected">Kết nối</string>
+    <string name="status_connected_short">Kết nối</string>
+    <string name="status_granted">Đã cấp</string>
+    <string name="service_running">Dịch vụ ngầm đang chạy</string>
+    <string name="service_stopped">Dịch vụ đã tắt</string>
+    <string name="connected_count_format">%d kết nối</string>
+    <string name="badge_currently_connected">● %d đang kết nối</string>
+    <string name="event_type_connect_caps">KẾT NỐI</string>
+    <string name="event_type_disconnect_caps">NGẮT KẾT NỐI</string>
+    <string name="event_connect_short">Kết nối</string>
+    <string name="event_disconnect_short">Ngắt</string>
+    <string name="device_type_and_mac_format">Loại: %1$s • MAC: %2$s</string>
+
+    <!-- Notifications &amp; Channels -->
+    <string name="notif_channel_service_name">Dịch vụ giám sát BT Watcher</string>
+    <string name="notif_channel_service_desc">Thông báo dịch vụ nền giám sát kết nối Bluetooth và vị trí GPS</string>
+    <string name="notif_channel_alert_name">Cảnh báo ngắt kết nối thiết bị</string>
+    <string name="notif_channel_alert_desc">Cảnh báo ngay khi thiết bị Bluetooth bị mất kết nối kèm vị trí GPS</string>
+    <string name="notif_service_default_last_event">Đang sẵn sàng ghi nhận sự kiện</string>
+    <string name="notif_service_active_title">BT Watcher đang hoạt động</string>
+    <string name="notif_service_status_connected">Đang kết nối: %1$d thiết bị • %2$s</string>
+    <string name="notif_service_status_monitoring">Đang giám sát nền • %s</string>
+    <string name="notif_alert_title">⚠️ Thiết bị vừa ngắt kết nối!</string>
+    <string name="notif_alert_content">%1$s đã ngắt kết nối tại: %2$s</string>
+    <string name="notif_alert_big_text">Thiết bị \"%1$s\" đã bị ngắt kết nối.\n📍 Vị trí ghi nhận: %2$s\n⏰ Thời gian: %3$s</string>
+    <string name="notif_map_marker_label">Vị trí ngắt kết nối %s</string>
+    <string name="notif_action_view_on_map">🗺️ Xem vị trí trên bản đồ</string>
+
+    <!-- Warning Banner -->
+    <string name="warning_banner_subtitle">LƯU Ý VẬN HÀNH</string>
+    <string name="warning_banner_title">Đặc tính kết nối &amp; GPS</string>
+    <string name="warning_banner_bullet_1">Chỉ ghi nhận khi thiết bị còn bật nguồn và trong phạm vi Bluetooth. Không thể định vị khi thiết bị đã tắt nguồn hoặc cạn pin (khác biệt với hệ sinh thái AirTag).</string>
+    <string name="warning_banner_bullet_2">Độ chính xác vị trí phụ thuộc vào cảm biến GPS của điện thoại tại thời điểm quét và có thể có sai số khi ở trong nhà / tầng hầm.</string>
+    <string name="warning_banner_storage_pill">Lưu trữ SQLite / Room an toàn &amp; 100% trên thiết bị</string>
+
+    <!-- Device List Screen -->
+    <string name="tile_events_today">SỰ KIỆN HÔM NAY</string>
+    <string name="tile_events_today_desc">Lưu GPS &amp; mốc giờ</string>
+    <string name="tile_alert_status">CẢNH BÁO RƠI RỚT</string>
+    <string name="alert_sound_vibrate_on">Chuông &amp; rung: BẬT</string>
+    <string name="alert_sound_vibrate_off">Chuông &amp; rung: TẮT</string>
+    <string name="search_placeholder">Tìm theo tên thiết bị, MAC hoặc địa chỉ...</string>
+    <string name="section_recent_activity">HOẠT ĐỘNG GẦN ĐÂY (%d)</string>
+    <string name="empty_search_title">Không tìm thấy thiết bị phù hợp</string>
+    <string name="empty_devices_title">Chưa có lịch sử kết nối Bluetooth</string>
+    <string name="empty_search_desc">Thử xóa bộ lọc hoặc tìm kiếm với từ khóa khác.</string>
+    <string name="empty_devices_desc">Khi kết nối hoặc ngắt kết nối với tai nghe, loa, đồng hồ Bluetooth, app sẽ tự động ghi lại thời gian và vị trí GPS.</string>
+    <string name="dialog_simulate_title">Mô phỏng sự kiện Bluetooth</string>
+    <string name="dialog_simulate_desc">Chọn một thiết bị mẫu và sự kiện để tạo dữ liệu tức thì (phù hợp kiểm tra trên máy ảo Emulator):</string>
+
+    <!-- Device Detail Screen -->
+    <string name="device_not_found">Không tìm thấy thông tin thiết bị</string>
+    <string name="menu_simulate_connect">Mô phỏng Kết nối</string>
+    <string name="menu_simulate_disconnect">Mô phỏng Ngắt kết nối</string>
+    <string name="menu_delete_device">Xóa thiết bị này</string>
+    <string name="section_event_history">LỊCH SỬ SỰ KIỆN (%d)</string>
+    <string name="label_newest_first">Mới nhất ở trên</string>
+    <string name="empty_device_events">Chưa có sự kiện nào được ghi nhận cho thiết bị này.</string>
+    <string name="dialog_delete_title">Xóa thiết bị?</string>
+    <string name="dialog_delete_message">Toàn bộ lịch sử kết nối và tọa độ GPS của \"%s\" sẽ bị xóa khỏi máy.</string>
+    <string name="tile_last_seen_title">LẦN CUỐI CÙNG THẤY THIẾT BỊ</string>
+    <string name="tile_last_seen_subtitle">Thời gian &amp; vị trí ngắt kết nối gần nhất</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Cài đặt &amp; Giới thiệu</string>
+    <string name="settings_section_service_alert">DỊCH VỤ &amp; CẢNH BÁO</string>
+    <string name="setting_service_name">Dịch vụ ghi log chạy nền</string>
+    <string name="setting_service_desc">Chạy Foreground Service với thông báo nhỏ gọn để Android không giải phóng bộ nhớ khi tắt màn hình.</string>
+    <string name="setting_alert_name">Cảnh báo ngắt kết nối tức thì</string>
+    <string name="setting_alert_desc">Phát cảnh báo âm thanh và rung kèm tọa độ ngay khi tai nghe/loa bị ngắt — phòng ngừa bỏ quên thiết bị.</string>
+    <string name="settings_section_devices_data">THIẾT BỊ &amp; DỮ LIỆU</string>
+    <string name="settings_section_notes">LƯU Ý QUAN TRỌNG &amp; NGUYÊN LÝ HOẠT ĐỘNG</string>
+    <string name="setting_storage_title">Lưu trữ cục bộ an toàn (Room SQLite)</string>
+    <string name="setting_storage_desc">Mọi thông tin thiết bị, thời gian và tọa độ được lưu trữ an toàn 100% trên điện thoại của bạn, không gửi lên bất kỳ máy chủ nào.</string>
+    <string name="setting_map_title">Xem bản đồ không cần API Key</string>
+    <string name="setting_map_desc">Ứng dụng mở trực tiếp ứng dụng Bản đồ (Google Maps hoặc bản đồ mặc định của máy) thông qua Android Intent tiêu chuẩn.</string>
+    <string name="dialog_clear_all_title">Xác nhận xóa toàn bộ?</string>
+    <string name="dialog_clear_all_message">Hành động này sẽ xóa vĩnh viễn danh sách mọi thiết bị và toàn bộ dòng thời gian sự kiện đã lưu trên máy.</string>
+
+    <!-- Permission Onboarding Screen -->
+    <string name="onboarding_welcome_title">Chào mừng tới BT Watcher</string>
+    <string name="onboarding_welcome_desc">Để ghi lại mốc giờ kết nối và vị trí GPS của thiết bị Bluetooth khi ngắt/kết nối, app cần quyền hệ thống sau:</string>
+    <string name="permission_bt_title">1. Quyền Bluetooth</string>
+    <string name="permission_bt_desc">Nhận diện tên và trạng thái kết nối/ngắt kết nối của tai nghe, loa, đồng hồ đã ghép đôi.</string>
+    <string name="permission_loc_title">2. Quyền Vị trí (GPS)</string>
+    <string name="permission_loc_desc">Lấy tọa độ GPS ngay tại thời điểm thiết bị kết nối hoặc ngắt kết nối để bạn biết thiết bị ở đâu.</string>
+    <string name="permission_notif_title">3. Quyền Thông báo</string>
+    <string name="permission_notif_desc">Duy trì dịch vụ chạy nền liên tục và gửi cảnh báo ngay nếu thiết bị ngắt kết nối bất ngờ.</string>
 </resources>

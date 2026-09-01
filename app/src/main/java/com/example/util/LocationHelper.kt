@@ -134,14 +134,16 @@ object LocationHelper {
         }
     }
 
-    fun openLocationInMap(context: Context, latitude: Double?, longitude: Double?, label: String = "Vị trí thiết bị") {
+    fun openLocationInMap(context: Context, latitude: Double?, longitude: Double?, label: String? = null) {
         if (latitude == null || longitude == null) {
-            Toast.makeText(context, "Không có tọa độ GPS cho sự kiện này", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, context.getString(com.example.R.string.toast_no_coordinates), Toast.LENGTH_SHORT).show()
             return
         }
 
+        val resolvedLabel = label ?: context.getString(com.example.R.string.cd_location)
+
         try {
-            val uri = Uri.parse("geo:$latitude,$longitude?q=$latitude,$longitude(${Uri.encode(label)})")
+            val uri = Uri.parse("geo:$latitude,$longitude?q=$latitude,$longitude(${Uri.encode(resolvedLabel)})")
             val mapIntent = Intent(Intent.ACTION_VIEW, uri).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK
             }
@@ -163,7 +165,7 @@ object LocationHelper {
                 }
                 context.startActivity(webIntent)
             } catch (ex: Exception) {
-                Toast.makeText(context, "Không thể mở ứng dụng bản đồ", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, context.getString(com.example.R.string.toast_cannot_open_map), Toast.LENGTH_SHORT).show()
             }
         }
     }

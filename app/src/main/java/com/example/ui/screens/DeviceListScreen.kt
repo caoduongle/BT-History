@@ -63,7 +63,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import com.example.R
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -149,10 +151,10 @@ fun DeviceListScreen(
                                         .size(7.dp)
                                         .clip(CircleShape)
                                         .background(if (isServiceEnabled) BentoGreen else BentoTextMuted)
-                                )
+                                    )
                                 Spacer(modifier = Modifier.width(5.dp))
                                 Text(
-                                    text = if (isServiceEnabled) "Dịch vụ ngầm đang chạy" else "Dịch vụ đã tắt",
+                                    text = if (isServiceEnabled) stringResource(R.string.service_running) else stringResource(R.string.service_stopped),
                                     style = MaterialTheme.typography.labelSmall,
                                     color = if (isServiceEnabled) BentoGreen else BentoTextMuted,
                                     fontSize = 11.sp
@@ -169,7 +171,7 @@ fun DeviceListScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Sync,
-                            contentDescription = "Đồng bộ thiết bị đã ghép đôi",
+                            contentDescription = stringResource(R.string.cd_sync_paired_devices),
                             tint = BentoPurpleLight
                         )
                     }
@@ -181,7 +183,7 @@ fun DeviceListScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Settings,
-                            contentDescription = "Cài đặt",
+                            contentDescription = stringResource(R.string.cd_settings),
                             tint = BentoTextSecondary
                         )
                     }
@@ -207,13 +209,13 @@ fun DeviceListScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Speed,
-                        contentDescription = "Mô phỏng",
+                        contentDescription = stringResource(R.string.btn_simulate),
                         tint = BentoPurpleLight,
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Mô phỏng",
+                        text = stringResource(R.string.btn_simulate),
                         fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.labelLarge,
                         color = BentoPurpleLight
@@ -253,7 +255,7 @@ fun DeviceListScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = "SỰ KIỆN HÔM NAY",
+                                    text = stringResource(R.string.tile_events_today),
                                     style = MaterialTheme.typography.labelSmall,
                                     fontWeight = FontWeight.Bold,
                                     letterSpacing = 0.8.sp,
@@ -275,7 +277,7 @@ fun DeviceListScreen(
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
-                                text = "Lưu GPS & mốc giờ",
+                                text = stringResource(R.string.tile_events_today_desc),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = BentoPurpleContainer.copy(alpha = 0.9f)
                             )
@@ -298,7 +300,7 @@ fun DeviceListScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = "CẢNH BÁO RƠI RỚT",
+                                    text = stringResource(R.string.tile_alert_status),
                                     style = MaterialTheme.typography.labelSmall,
                                     fontWeight = FontWeight.Bold,
                                     letterSpacing = 0.8.sp,
@@ -321,7 +323,7 @@ fun DeviceListScreen(
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
-                                    text = "$connectedCount kết nối",
+                                    text = stringResource(R.string.connected_count_format, connectedCount),
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold,
                                     color = BentoTextPrimary
@@ -329,7 +331,7 @@ fun DeviceListScreen(
                             }
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
-                                text = if (isAlertEnabled) "Chuông & rung: BẬT" else "Chuông & rung: TẮT",
+                                text = if (isAlertEnabled) stringResource(R.string.alert_sound_vibrate_on) else stringResource(R.string.alert_sound_vibrate_off),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = if (isAlertEnabled) BentoGreen else BentoTextMuted
                             )
@@ -348,7 +350,7 @@ fun DeviceListScreen(
                         .testTag("search_text_field"),
                     placeholder = {
                         Text(
-                            "Tìm theo tên thiết bị, MAC hoặc địa chỉ...",
+                            stringResource(R.string.search_placeholder),
                             style = MaterialTheme.typography.bodyMedium,
                             color = BentoTextMuted
                         )
@@ -356,7 +358,7 @@ fun DeviceListScreen(
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Default.Search,
-                            contentDescription = "Tìm kiếm",
+                            contentDescription = stringResource(R.string.cd_search),
                             tint = BentoPurpleLight
                         )
                     },
@@ -365,7 +367,7 @@ fun DeviceListScreen(
                             IconButton(onClick = { viewModel.searchQuery.value = "" }) {
                                 Icon(
                                     imageVector = Icons.Default.Close,
-                                    contentDescription = "Xóa",
+                                    contentDescription = stringResource(R.string.cd_clear),
                                     tint = BentoTextMuted
                                 )
                             }
@@ -399,7 +401,7 @@ fun DeviceListScreen(
                             onClick = { viewModel.selectedFilter.value = filter },
                             label = {
                                 Text(
-                                    text = filter.label,
+                                    text = stringResource(filter.titleRes),
                                     style = MaterialTheme.typography.labelMedium,
                                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
                                 )
@@ -437,7 +439,7 @@ fun DeviceListScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "HOẠT ĐỘNG GẦN ĐÂY (${devices.size})",
+                        text = stringResource(R.string.section_recent_activity, devices.size),
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 1.sp,
@@ -445,7 +447,7 @@ fun DeviceListScreen(
                     )
                     if (connectedCount > 0) {
                         Text(
-                            text = "● $connectedCount đang kết nối",
+                            text = stringResource(R.string.badge_currently_connected, connectedCount),
                             style = MaterialTheme.typography.labelSmall,
                             color = BentoGreen,
                             fontWeight = FontWeight.Bold
@@ -538,9 +540,9 @@ private fun EmptyStateView(
 
             Text(
                 text = if (searchQuery.isNotBlank() || selectedFilter != TimeFilter.ALL)
-                    "Không tìm thấy thiết bị phù hợp"
+                    stringResource(R.string.empty_search_title)
                 else
-                    "Chưa có lịch sử kết nối Bluetooth",
+                    stringResource(R.string.empty_devices_title),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = BentoTextPrimary,
@@ -551,9 +553,9 @@ private fun EmptyStateView(
 
             Text(
                 text = if (searchQuery.isNotBlank() || selectedFilter != TimeFilter.ALL)
-                    "Thử xóa bộ lọc hoặc tìm kiếm với từ khóa khác."
+                    stringResource(R.string.empty_search_desc)
                 else
-                    "Khi kết nối hoặc ngắt kết nối với tai nghe, loa, đồng hồ Bluetooth, app sẽ tự động ghi lại thời gian và vị trí GPS.",
+                    stringResource(R.string.empty_devices_desc),
                 style = MaterialTheme.typography.bodySmall,
                 color = BentoTextSecondary,
                 textAlign = TextAlign.Center,
@@ -573,7 +575,7 @@ private fun EmptyStateView(
             ) {
                 Icon(imageVector = Icons.Default.Sync, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Lấy thiết bị đã ghép đôi", fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.btn_get_paired_devices), fontWeight = FontWeight.SemiBold)
             }
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -592,7 +594,7 @@ private fun EmptyStateView(
             ) {
                 Icon(imageVector = Icons.Default.Speed, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Thêm dữ liệu mẫu để thử nghiệm", fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.btn_add_sample_data), fontWeight = FontWeight.SemiBold)
             }
         }
     }
@@ -615,7 +617,7 @@ private fun SimulateEventDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                "Mô phỏng sự kiện Bluetooth",
+                stringResource(R.string.dialog_simulate_title),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = BentoTextPrimary
@@ -624,7 +626,7 @@ private fun SimulateEventDialog(
         text = {
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text(
-                    "Chọn một thiết bị mẫu và sự kiện để tạo dữ liệu tức thì (phù hợp kiểm tra trên máy ảo Emulator):",
+                    stringResource(R.string.dialog_simulate_desc),
                     style = MaterialTheme.typography.bodySmall,
                     color = BentoTextSecondary
                 )
@@ -667,13 +669,13 @@ private fun SimulateEventDialog(
                                 TextButton(
                                     onClick = { onSimulate(name, mac, type, "CONNECT", lat, lon, address) }
                                 ) {
-                                    Text("Kết nối", color = BentoGreen, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                                    Text(stringResource(R.string.btn_connect), color = BentoGreen, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                                 }
                                 Spacer(modifier = Modifier.width(4.dp))
                                 TextButton(
                                     onClick = { onSimulate(name, mac, type, "DISCONNECT", lat, lon, address) }
                                 ) {
-                                    Text("Ngắt kết nối", color = BentoRed, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                                    Text(stringResource(R.string.btn_disconnect), color = BentoRed, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                                 }
                             }
                         }
@@ -683,7 +685,7 @@ private fun SimulateEventDialog(
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text("Đóng", color = BentoPurpleLight)
+                Text(stringResource(R.string.btn_close), color = BentoPurpleLight)
             }
         },
         containerColor = BentoSurface,

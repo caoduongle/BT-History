@@ -11,6 +11,9 @@ import androidx.core.content.ContextCompat
 
 object BluetoothHelper {
 
+    const val DEFAULT_DEVICE_NAME = "Thiết bị Bluetooth"
+    const val UNKNOWN_DEVICE_NAME = "Thiết bị không rõ"
+
     fun hasBluetoothConnectPermission(context: Context): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             ContextCompat.checkSelfPermission(
@@ -47,15 +50,15 @@ object BluetoothHelper {
 
     @SuppressLint("MissingPermission")
     fun getSafeDeviceName(context: Context, device: BluetoothDevice?): String {
-        if (device == null) return "Thiết bị Bluetooth"
+        if (device == null) return context.getString(com.example.R.string.device_default_name)
         return try {
             if (hasBluetoothConnectPermission(context)) {
-                device.name ?: device.alias ?: "Thiết bị (${device.address.takeLast(5)})"
+                device.name ?: device.alias ?: context.getString(com.example.R.string.device_name_with_mac_suffix, device.address.takeLast(5))
             } else {
-                "Thiết bị (${device.address.takeLast(5)})"
+                context.getString(com.example.R.string.device_name_with_mac_suffix, device.address.takeLast(5))
             }
         } catch (e: Exception) {
-            "Thiết bị Bluetooth"
+            context.getString(com.example.R.string.device_default_name)
         }
     }
 

@@ -49,7 +49,7 @@ class DeviceRepository(
 
             val deviceId: Long = if (existingDevice != null) {
                 val updated = existingDevice.copy(
-                    name = if (name.isNotBlank() && name != "Thiết bị không rõ") name else existingDevice.name,
+                    name = if (name.isNotBlank() && name != com.example.util.BluetoothHelper.UNKNOWN_DEVICE_NAME) name else existingDevice.name,
                     deviceType = if (deviceType != "OTHER") deviceType else existingDevice.deviceType,
                     isConnected = isConnected,
                     lastEventTimestamp = timestamp,
@@ -62,7 +62,7 @@ class DeviceRepository(
                 existingDevice.id
             } else {
                 val newDevice = DeviceEntity(
-                    name = name.ifBlank { "Thiết bị Bluetooth" },
+                    name = name.ifBlank { com.example.util.BluetoothHelper.DEFAULT_DEVICE_NAME },
                     macAddress = macAddress,
                     deviceType = deviceType,
                     isConnected = isConnected,

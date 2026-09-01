@@ -49,8 +49,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import com.example.R
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ui.components.WarningBanner
@@ -112,7 +114,7 @@ fun PermissionOnboardingScreen(
         ) {
             Icon(
                 imageVector = Icons.Default.Bluetooth,
-                contentDescription = "BT Watcher",
+                contentDescription = stringResource(R.string.app_name),
                 tint = BentoPurpleLight,
                 modifier = Modifier.size(42.dp)
             )
@@ -121,7 +123,7 @@ fun PermissionOnboardingScreen(
         Spacer(modifier = Modifier.height(18.dp))
 
         Text(
-            text = "Chào mừng tới BT Watcher",
+            text = stringResource(R.string.onboarding_welcome_title),
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
             color = BentoTextPrimary
@@ -130,7 +132,7 @@ fun PermissionOnboardingScreen(
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "Để ghi lại mốc giờ kết nối và vị trí GPS của thiết bị Bluetooth khi ngắt/kết nối, app cần quyền hệ thống sau:",
+            text = stringResource(R.string.onboarding_welcome_desc),
             style = MaterialTheme.typography.bodyMedium,
             color = BentoTextSecondary,
             textAlign = TextAlign.Center,
@@ -147,8 +149,8 @@ fun PermissionOnboardingScreen(
         // Permission Items Cards in Bento Style
         PermissionItemCard(
             icon = Icons.Default.Bluetooth,
-            title = "1. Quyền Bluetooth",
-            description = "Nhận diện tên và trạng thái kết nối/ngắt kết nối của tai nghe, loa, đồng hồ đã ghép đôi.",
+            title = stringResource(R.string.permission_bt_title),
+            description = stringResource(R.string.permission_bt_desc),
             isGranted = hasBtPermission
         )
 
@@ -156,8 +158,8 @@ fun PermissionOnboardingScreen(
 
         PermissionItemCard(
             icon = Icons.Default.LocationOn,
-            title = "2. Quyền Vị trí (GPS)",
-            description = "Lấy tọa độ GPS ngay tại thời điểm thiết bị kết nối hoặc ngắt kết nối để bạn biết thiết bị ở đâu.",
+            title = stringResource(R.string.permission_loc_title),
+            description = stringResource(R.string.permission_loc_desc),
             isGranted = hasLocPermission
         )
 
@@ -165,8 +167,8 @@ fun PermissionOnboardingScreen(
 
         PermissionItemCard(
             icon = Icons.Default.Notifications,
-            title = "3. Quyền Thông báo",
-            description = "Duy trì dịch vụ chạy nền liên tục và gửi cảnh báo ngay nếu thiết bị ngắt kết nối bất ngờ.",
+            title = stringResource(R.string.permission_notif_title),
+            description = stringResource(R.string.permission_notif_desc),
             isGranted = hasNotifPermission
         )
 
@@ -206,7 +208,7 @@ fun PermissionOnboardingScreen(
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = "Cấp quyền & Bắt đầu",
+                text = stringResource(R.string.btn_grant_and_start),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = BentoPurpleLight
@@ -230,7 +232,7 @@ fun PermissionOnboardingScreen(
             border = androidx.compose.foundation.BorderStroke(1.dp, BentoOutline)
         ) {
             Text(
-                text = "Bỏ qua / Vào giao diện chính",
+                text = stringResource(R.string.btn_skip_to_main),
                 style = MaterialTheme.typography.bodyMedium,
                 color = BentoTextSecondary
             )
@@ -299,13 +301,13 @@ private fun PermissionItemCard(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
                                 imageVector = Icons.Default.CheckCircle,
-                                contentDescription = "Đã cấp",
+                                contentDescription = stringResource(R.string.status_granted),
                                 tint = BentoGreen,
                                 modifier = Modifier.size(16.dp)
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                text = "Đã cấp",
+                                text = stringResource(R.string.status_granted),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = BentoGreen,
                                 fontWeight = FontWeight.SemiBold

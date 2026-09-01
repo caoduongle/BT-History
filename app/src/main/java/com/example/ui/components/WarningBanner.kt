@@ -24,7 +24,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import com.example.R
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ui.theme.BentoAmber
@@ -66,7 +68,7 @@ fun WarningBanner(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Info,
-                        contentDescription = "Lưu ý quan trọng",
+                        contentDescription = stringResource(R.string.cd_important_notice),
                         tint = BentoAmber,
                         modifier = Modifier.size(20.dp)
                     )
@@ -76,14 +78,14 @@ fun WarningBanner(
 
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "LƯU Ý VẬN HÀNH",
+                        text = stringResource(R.string.warning_banner_subtitle),
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 1.sp,
                         color = BentoPurpleLight
                     )
                     Text(
-                        text = "Đặc tính kết nối & GPS",
+                        text = stringResource(R.string.warning_banner_title),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = BentoTextPrimary
@@ -107,7 +109,7 @@ fun WarningBanner(
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
-                    text = "Chỉ ghi nhận khi thiết bị còn bật nguồn và trong phạm vi Bluetooth. Không thể định vị khi thiết bị đã tắt nguồn hoặc cạn pin (khác biệt với hệ sinh thái AirTag).",
+                    text = stringResource(R.string.warning_banner_bullet_1),
                     style = MaterialTheme.typography.bodySmall,
                     color = BentoTextSecondary,
                     lineHeight = 18.sp
@@ -130,7 +132,7 @@ fun WarningBanner(
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
-                    text = "Độ chính xác vị trí phụ thuộc vào cảm biến GPS của điện thoại tại thời điểm quét và có thể có sai số khi ở trong nhà / tầng hầm.",
+                    text = stringResource(R.string.warning_banner_bullet_2),
                     style = MaterialTheme.typography.bodySmall,
                     color = BentoTextSecondary,
                     lineHeight = 18.sp
@@ -157,7 +159,7 @@ fun WarningBanner(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Lưu trữ SQLite / Room an toàn & 100% trên thiết bị",
+                        text = stringResource(R.string.warning_banner_storage_pill),
                         style = MaterialTheme.typography.labelSmall,
                         color = BentoTextMuted
                     )

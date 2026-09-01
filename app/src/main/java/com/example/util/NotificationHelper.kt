@@ -27,20 +27,20 @@ object NotificationHelper {
             // Channel for sticky foreground service
             val serviceChannel = NotificationChannel(
                 SERVICE_CHANNEL_ID,
-                "Dịch vụ giám sát BT Watcher",
+                context.getString(R.string.notif_channel_service_name),
                 NotificationManager.IMPORTANCE_LOW
             ).apply {
-                description = "Thông báo dịch vụ nền giám sát kết nối Bluetooth và vị trí GPS"
+                description = context.getString(R.string.notif_channel_service_desc)
                 setShowBadge(false)
             }
 
             // Channel for disconnect alerts
             val alertChannel = NotificationChannel(
                 ALERT_CHANNEL_ID,
-                "Cảnh báo ngắt kết nối thiết bị",
+                context.getString(R.string.notif_channel_alert_name),
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
-                description = "Cảnh báo ngay khi thiết bị Bluetooth bị mất kết nối kèm vị trí GPS"
+                description = context.getString(R.string.notif_channel_alert_desc)
                 enableVibration(true)
                 enableLights(true)
                 setShowBadge(true)
@@ -54,7 +54,7 @@ object NotificationHelper {
     fun buildServiceNotification(
         context: Context,
         connectedCount: Int = 0,
-        lastEventText: String = "Đang sẵn sàng ghi nhận sự kiện"
+        lastEventText: String? = null
     ): Notification {
         val launchIntent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
@@ -66,14 +66,15 @@ object NotificationHelper {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
+        val resolvedLastEvent = lastEventText ?: context.getString(R.string.notif_service_default_last_event)
         val statusText = if (connectedCount > 0) {
-            "Đang kết nối: $connectedCount thiết bị • $lastEventText"
+            context.getString(R.string.notif_service_status_connected, connectedCount, resolvedLastEvent)
         } else {
-            "Đang giám sát nền • $lastEventText"
+            context.getString(R.string.notif_service_status_monitoring, resolvedLastEvent)
         }
 
         return NotificationCompat.Builder(context, SERVICE_CHANNEL_ID)
-            .setContentTitle("BT Watcher đang hoạt động")
+            .setContentTitle(context.getString(R.string.notif_service_active_title))
             .setContentText(statusText)
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentIntent(pendingIntent)
@@ -111,15 +112,15 @@ object NotificationHelper {
         val locationText = when {
             !address.isNullOrBlank() -> address
             latitude != null && longitude != null -> TimeFormatter.formatCoordinates(latitude, longitude)
-            else -> "Chưa xác định tọa độ GPS"
+            else -> context.getString(R.string.location_unknown_coordinates)
         }
 
         val builder = NotificationCompat.Builder(context, ALERT_CHANNEL_ID)
-            .setContentTitle("⚠️ Thiết bị vừa ngắt kết nối!")
-            .setContentText("$deviceName đã ngắt kết nối tại: $locationText")
+            .setContentTitle(context.getString(R.string.notif_alert_title))
+            .setContentText(context.getString(R.string.notif_alert_content, deviceName, locationText))
             .setStyle(
                 NotificationCompat.BigTextStyle()
-                    .bigText("Thiết bị \"$deviceName\" đã bị ngắt kết nối.\n📍 Vị trí ghi nhận: $locationText\n⏰ Thời gian: ${TimeFormatter.formatFullDateTime(System.currentTimeMillis())}")
+                    .bigText(context.getString(R.string.notif_alert_big_text, deviceName, locationText, TimeFormatter.formatFullDateTime(System.currentTimeMillis())))
             )
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentIntent(appPendingIntent)
@@ -130,7 +131,8 @@ object NotificationHelper {
 
         // Add "Xem trên bản đồ" Action button if coordinates exist
         if (latitude != null && longitude != null) {
-            val mapUri = Uri.parse("geo:$latitude,$longitude?q=$latitude,$longitude(${Uri.encode("Vị trí ngắt kết nối $deviceName")})")
+            val mapLabel = context.getString(R.string.notif_map_marker_label, deviceName)
+            val mapUri = Uri.parse("geo:$latitude,$longitude?q=$latitude,$longitude(${Uri.encode(mapLabel)})")
             val mapIntent = Intent(Intent.ACTION_VIEW, mapUri).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK
             }
@@ -142,7 +144,7 @@ object NotificationHelper {
             )
             builder.addAction(
                 android.R.drawable.ic_dialog_map,
-                "🗺️ Xem vị trí trên bản đồ",
+                context.getString(R.string.notif_action_view_on_map),
                 mapPendingIntent
             )
         }

@@ -64,7 +64,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import com.example.R
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -113,7 +115,7 @@ fun SettingsScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "Cài đặt & Giới thiệu",
+                        text = stringResource(R.string.settings_title),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = BentoTextPrimary
@@ -123,7 +125,7 @@ fun SettingsScreen(
                     IconButton(onClick = onBack, modifier = Modifier.testTag("settings_back_button")) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Quay lại",
+                            contentDescription = stringResource(R.string.cd_back),
                             tint = BentoTextPrimary
                         )
                     }
@@ -144,7 +146,7 @@ fun SettingsScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Group: Cấu hình Dịch vụ & Cảnh báo (Bento Tile)
-            SectionTitle("DỊCH VỤ & CẢNH BÁO")
+            SectionTitle(stringResource(R.string.settings_section_service_alert))
 
             Card(
                 modifier = Modifier
@@ -163,14 +165,14 @@ fun SettingsScreen(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "Dịch vụ ghi log chạy nền",
+                                text = stringResource(R.string.setting_service_name),
                                 style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.Bold,
                                 color = BentoTextPrimary
                             )
                             Spacer(modifier = Modifier.height(3.dp))
                             Text(
-                                text = "Chạy Foreground Service với thông báo nhỏ gọn để Android không giải phóng bộ nhớ khi tắt màn hình.",
+                                text = stringResource(R.string.setting_service_desc),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = BentoTextSecondary,
                                 lineHeight = 16.sp
@@ -204,14 +206,14 @@ fun SettingsScreen(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "Cảnh báo ngắt kết nối tức thì",
+                                text = stringResource(R.string.setting_alert_name),
                                 style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.Bold,
                                 color = BentoTextPrimary
                             )
                             Spacer(modifier = Modifier.height(3.dp))
                             Text(
-                                text = "Phát cảnh báo âm thanh và rung kèm tọa độ ngay khi tai nghe/loa bị ngắt — phòng ngừa bỏ quên thiết bị.",
+                                text = stringResource(R.string.setting_alert_desc),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = BentoTextSecondary,
                                 lineHeight = 16.sp
@@ -236,7 +238,7 @@ fun SettingsScreen(
             }
 
             // Group: Thao tác Dữ liệu & Thiết bị (Bento Tile)
-            SectionTitle("THIẾT BỊ & DỮ LIỆU")
+            SectionTitle(stringResource(R.string.settings_section_devices_data))
 
             Card(
                 modifier = Modifier
@@ -259,7 +261,7 @@ fun SettingsScreen(
                     ) {
                         Icon(Icons.Default.Sync, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Quét & đồng bộ thiết bị đã ghép đôi", fontWeight = FontWeight.SemiBold)
+                        Text(stringResource(R.string.btn_sync_paired), fontWeight = FontWeight.SemiBold)
                     }
 
                     // Request/Check permissions button
@@ -288,7 +290,7 @@ fun SettingsScreen(
                     ) {
                         Icon(Icons.Default.Security, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Kiểm tra & Cấp lại quyền hệ thống", fontWeight = FontWeight.SemiBold)
+                        Text(stringResource(R.string.btn_check_permissions), fontWeight = FontWeight.SemiBold)
                     }
 
                     // Clear All History
@@ -304,13 +306,13 @@ fun SettingsScreen(
                     ) {
                         Icon(Icons.Default.DeleteForever, contentDescription = null, modifier = Modifier.size(18.dp), tint = BentoRed)
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Xóa toàn bộ lịch sử thiết bị & sự kiện", fontWeight = FontWeight.SemiBold, color = BentoRed)
+                        Text(stringResource(R.string.btn_clear_all_history), fontWeight = FontWeight.SemiBold, color = BentoRed)
                     }
                 }
             }
 
             // Group: Bento Notes & Information
-            SectionTitle("LƯU Ý QUAN TRỌNG & NGUYÊN LÝ HOẠT ĐỘNG")
+            SectionTitle(stringResource(R.string.settings_section_notes))
             WarningBanner()
 
             // Tech Info Bento Card
@@ -327,7 +329,7 @@ fun SettingsScreen(
                         Icon(Icons.Default.Storage, contentDescription = null, tint = BentoPurpleLight, modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "Lưu trữ cục bộ an toàn (Room SQLite)",
+                            text = stringResource(R.string.setting_storage_title),
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold,
                             color = BentoTextPrimary
@@ -335,7 +337,7 @@ fun SettingsScreen(
                     }
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Mọi thông tin thiết bị, thời gian và tọa độ được lưu trữ an toàn 100% trên điện thoại của bạn, không gửi lên bất kỳ máy chủ nào.",
+                        text = stringResource(R.string.setting_storage_desc),
                         style = MaterialTheme.typography.bodySmall,
                         color = BentoTextSecondary
                     )
@@ -346,7 +348,7 @@ fun SettingsScreen(
                         Icon(Icons.AutoMirrored.Filled.Help, contentDescription = null, tint = BentoPurpleLight, modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "Xem bản đồ không cần API Key",
+                            text = stringResource(R.string.setting_map_title),
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold,
                             color = BentoTextPrimary
@@ -354,7 +356,7 @@ fun SettingsScreen(
                     }
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Ứng dụng mở trực tiếp ứng dụng Bản đồ (Google Maps hoặc bản đồ mặc định của máy) thông qua Android Intent tiêu chuẩn.",
+                        text = stringResource(R.string.setting_map_desc),
                         style = MaterialTheme.typography.bodySmall,
                         color = BentoTextSecondary
                     )
@@ -369,8 +371,8 @@ fun SettingsScreen(
     if (showClearHistoryDialog) {
         AlertDialog(
             onDismissRequest = { showClearHistoryDialog = false },
-            title = { Text("Xác nhận xóa toàn bộ?", color = BentoTextPrimary, fontWeight = FontWeight.Bold) },
-            text = { Text("Hành động này sẽ xóa vĩnh viễn danh sách mọi thiết bị và toàn bộ dòng thời gian sự kiện đã lưu trên máy.", color = BentoTextSecondary) },
+            title = { Text(stringResource(R.string.dialog_clear_all_title), color = BentoTextPrimary, fontWeight = FontWeight.Bold) },
+            text = { Text(stringResource(R.string.dialog_clear_all_message), color = BentoTextSecondary) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -378,12 +380,12 @@ fun SettingsScreen(
                         showClearHistoryDialog = false
                     }
                 ) {
-                    Text("Xóa tất cả", color = BentoRed, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.btn_confirm_clear_all), color = BentoRed, fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showClearHistoryDialog = false }) {
-                    Text("Hủy", color = BentoPurpleLight)
+                    Text(stringResource(R.string.btn_cancel), color = BentoPurpleLight)
                 }
             },
             containerColor = BentoSurface,

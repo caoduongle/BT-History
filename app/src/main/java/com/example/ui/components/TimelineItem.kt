@@ -31,7 +31,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
+import com.example.R
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -142,7 +144,7 @@ fun TimelineItem(
                             .padding(horizontal = 8.dp, vertical = 3.dp)
                     ) {
                         Text(
-                            text = if (isConnect) "KẾT NỐI" else "NGẮT KẾT NỐI",
+                            text = if (isConnect) stringResource(R.string.event_type_connect_caps) else stringResource(R.string.event_type_disconnect_caps),
                             style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.Bold,
                             color = color,
@@ -154,7 +156,7 @@ fun TimelineItem(
                         Spacer(modifier = Modifier.width(6.dp))
                         Icon(
                             imageVector = Icons.Default.Warning,
-                            contentDescription = "Ngắt kết nối bất ngờ",
+                            contentDescription = stringResource(R.string.cd_unexpected_disconnect),
                             tint = BentoAmber,
                             modifier = Modifier.size(16.dp)
                         )
@@ -162,7 +164,7 @@ fun TimelineItem(
                 }
 
                 Text(
-                    text = TimeFormatter.formatRelativeTime(event.timestamp),
+                    text = TimeFormatter.formatRelativeTime(context, event.timestamp),
                     style = MaterialTheme.typography.bodySmall,
                     color = BentoTextMuted,
                     fontSize = 11.sp
@@ -173,7 +175,7 @@ fun TimelineItem(
 
             // Full Date & Time
             Text(
-                text = "⏰ ${TimeFormatter.formatFullDateTime(event.timestamp)}",
+                text = "⏰ ${TimeFormatter.formatFullDateTime(context, event.timestamp)}",
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.SemiBold,
                 color = BentoTextPrimary
@@ -205,7 +207,7 @@ fun TimelineItem(
                     if (event.accuracy != null) {
                         Spacer(modifier = Modifier.height(3.dp))
                         Text(
-                            text = "Độ chính xác GPS: ±${event.accuracy.toInt()}m",
+                            text = stringResource(R.string.gps_accuracy_format, event.accuracy.toInt()),
                             style = MaterialTheme.typography.labelSmall,
                             color = BentoTextMuted,
                             fontSize = 10.sp
@@ -215,13 +217,14 @@ fun TimelineItem(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     // Open Maps Action Button in Bento Purple Style
+                    val connectLabel = if (isConnect) stringResource(R.string.event_connect_short) else stringResource(R.string.event_disconnect_short)
                     OutlinedButton(
                         onClick = {
                             LocationHelper.openLocationInMap(
                                 context = context,
                                 latitude = event.latitude,
                                 longitude = event.longitude,
-                                label = "$deviceName (${if (isConnect) "Kết nối" else "Ngắt"})"
+                                label = context.getString(R.string.map_pin_label_format, deviceName, connectLabel)
                             )
                         },
                         modifier = Modifier
@@ -239,13 +242,13 @@ fun TimelineItem(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Map,
-                            contentDescription = "Xem bản đồ",
+                            contentDescription = stringResource(R.string.cd_view_map),
                             tint = BentoPurpleLight,
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            text = "Xem vị trí trên bản đồ",
+                            text = stringResource(R.string.btn_view_on_map),
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.SemiBold,
                             color = BentoPurpleLight
@@ -254,7 +257,7 @@ fun TimelineItem(
                 }
             } else {
                 Text(
-                    text = "📍 Không lấy được vị trí GPS tại thời điểm này",
+                    text = stringResource(R.string.location_unavailable_at_event),
                     style = MaterialTheme.typography.bodySmall,
                     color = BentoTextMuted,
                     fontSize = 12.sp
