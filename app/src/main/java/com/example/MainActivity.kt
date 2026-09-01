@@ -84,6 +84,12 @@ fun BtWatcherApp(
                         navController.navigate("device_list") {
                             popUpTo("onboarding") { inclusive = true }
                         }
+                    },
+                    onSkip = {
+                        viewModel.skipOnboarding()
+                        navController.navigate("device_list") {
+                            popUpTo("onboarding") { inclusive = true }
+                        }
                     }
                 )
             }

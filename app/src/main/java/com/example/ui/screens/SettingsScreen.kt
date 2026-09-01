@@ -71,6 +71,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.ui.components.WarningBanner
+import com.example.ui.theme.BentoAmber
+import com.example.ui.theme.BentoAmberBg
 import com.example.ui.theme.BentoBackground
 import com.example.ui.theme.BentoCardElevated
 import com.example.ui.theme.BentoGreen
@@ -86,6 +88,7 @@ import com.example.ui.theme.BentoTextMuted
 import com.example.ui.theme.BentoTextPrimary
 import com.example.ui.theme.BentoTextSecondary
 import com.example.ui.viewmodel.DeviceViewModel
+import com.example.util.BluetoothHelper
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -100,10 +103,17 @@ fun SettingsScreen(
 
     var showClearHistoryDialog by remember { mutableStateOf(false) }
 
+    var hasPermissions by remember {
+        mutableStateOf(BluetoothHelper.hasRequiredPermissionsForService(context))
+    }
+
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) {
-        // Permissions updated
+        hasPermissions = BluetoothHelper.hasRequiredPermissionsForService(context)
+        if (hasPermissions) {
+            viewModel.toggleService(true)
+        }
     }
 
     Scaffold(
@@ -182,8 +192,25 @@ fun SettingsScreen(
                         Spacer(modifier = Modifier.width(12.dp))
 
                         Switch(
-                            checked = isServiceEnabled,
-                            onCheckedChange = { viewModel.toggleService(it) },
+                            checked = isServiceEnabled && hasPermissions,
+                            onCheckedChange = { checked ->
+                                if (checked && !hasPermissions) {
+                                    val perms = mutableListOf(
+                                        Manifest.permission.ACCESS_FINE_LOCATION,
+                                        Manifest.permission.ACCESS_COARSE_LOCATION
+                                    )
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                                        perms.add(Manifest.permission.BLUETOOTH_CONNECT)
+                                        perms.add(Manifest.permission.BLUETOOTH_SCAN)
+                                    }
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                        perms.add(Manifest.permission.POST_NOTIFICATIONS)
+                                    }
+                                    permissionLauncher.launch(perms.toTypedArray())
+                                } else {
+                                    viewModel.toggleService(checked)
+                                }
+                            },
                             colors = SwitchDefaults.colors(
                                 checkedThumbColor = BentoPurpleLight,
                                 checkedTrackColor = BentoPurplePrimary,
@@ -192,6 +219,26 @@ fun SettingsScreen(
                             ),
                             modifier = Modifier.testTag("service_toggle_switch")
                         )
+                    }
+
+                    if (!hasPermissions) {
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(BentoAmberBg)
+                                .border(1.dp, BentoAmber.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
+                                .padding(10.dp)
+                                .testTag("settings_missing_permissions_warning")
+                        ) {
+                            Text(
+                                text = stringResource(R.string.setting_service_missing_perms_warning),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = BentoAmber,
+                                lineHeight = 16.sp
+                            )
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(14.dp))

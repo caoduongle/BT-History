@@ -72,6 +72,7 @@ import com.example.util.BluetoothHelper
 @Composable
 fun PermissionOnboardingScreen(
     onPermissionsGranted: () -> Unit,
+    onSkip: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -219,7 +220,7 @@ fun PermissionOnboardingScreen(
 
         // Continue anyway or open settings
         OutlinedButton(
-            onClick = onPermissionsGranted,
+            onClick = onSkip,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(46.dp)

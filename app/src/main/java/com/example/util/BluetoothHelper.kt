@@ -48,6 +48,10 @@ object BluetoothHelper {
         }
     }
 
+    fun hasRequiredPermissionsForService(context: Context): Boolean {
+        return hasBluetoothConnectPermission(context) && hasLocationPermission(context)
+    }
+
     @SuppressLint("MissingPermission")
     fun getSafeDeviceName(context: Context, device: BluetoothDevice?): String {
         if (device == null) return context.getString(com.example.R.string.device_default_name)

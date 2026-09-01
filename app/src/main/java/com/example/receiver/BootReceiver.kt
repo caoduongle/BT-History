@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import com.example.BtWatcherApplication
 import com.example.service.BluetoothWatcherService
+import com.example.util.BluetoothHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -22,7 +23,11 @@ class BootReceiver : BroadcastReceiver() {
                 try {
                     val isServiceEnabled = app.preferencesRepository.isServiceEnabledFlow.first()
                     if (isServiceEnabled) {
-                        BluetoothWatcherService.startService(context)
+                        if (BluetoothHelper.hasRequiredPermissionsForService(context)) {
+                            BluetoothWatcherService.startService(context)
+                        } else {
+                            app.preferencesRepository.setServiceEnabled(false)
+                        }
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()

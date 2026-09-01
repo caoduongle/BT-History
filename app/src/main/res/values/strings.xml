@@ -159,4 +159,10 @@
     <string name="permission_loc_desc">Lấy tọa độ GPS ngay tại thời điểm thiết bị kết nối hoặc ngắt kết nối để bạn biết thiết bị ở đâu.</string>
     <string name="permission_notif_title">3. Quyền Thông báo</string>
     <string name="permission_notif_desc">Duy trì dịch vụ chạy nền liên tục và gửi cảnh báo ngay nếu thiết bị ngắt kết nối bất ngờ.</string>
+
+    <!-- Permission Warning Banner & Recovery -->
+    <string name="banner_permission_required_title">Dịch vụ giám sát nền đang TẮT</string>
+    <string name="banner_permission_required_desc">Thiếu quyền Bluetooth hoặc Vị trí. Hãy cấp quyền để tự động theo dõi và ghi nhận vị trí thiết bị.</string>
+    <string name="btn_grant_permissions">Cấp quyền</string>
+    <string name="setting_service_missing_perms_warning">⚠️ Dịch vụ giám sát đang tắt vì chưa được cấp đủ quyền Bluetooth hoặc Vị trí. Hãy bấm kiểm tra quyền bên dưới để kích hoạt.</string>
 </resources>

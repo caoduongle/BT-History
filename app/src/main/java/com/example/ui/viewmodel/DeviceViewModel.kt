@@ -122,6 +122,10 @@ class DeviceViewModel(
 
     fun toggleService(enabled: Boolean) {
         viewModelScope.launch {
+            if (enabled && !BluetoothHelper.hasRequiredPermissionsForService(context)) {
+                preferencesRepository.setServiceEnabled(false)
+                return@launch
+            }
             preferencesRepository.setServiceEnabled(enabled)
             if (enabled) {
                 BluetoothWatcherService.startService(context)
@@ -140,7 +144,21 @@ class DeviceViewModel(
     fun completeOnboarding() {
         viewModelScope.launch {
             preferencesRepository.setOnboardingCompleted(true)
-            if (isServiceEnabled.value) {
+            if (BluetoothHelper.hasRequiredPermissionsForService(context)) {
+                preferencesRepository.setServiceEnabled(true)
+                BluetoothWatcherService.startService(context)
+            } else {
+                preferencesRepository.setServiceEnabled(false)
+            }
+        }
+    }
+
+    fun skipOnboarding() {
+        viewModelScope.launch {
+            preferencesRepository.setOnboardingCompleted(true)
+            if (!BluetoothHelper.hasRequiredPermissionsForService(context)) {
+                preferencesRepository.setServiceEnabled(false)
+            } else if (isServiceEnabled.value) {
                 BluetoothWatcherService.startService(context)
             }
         }

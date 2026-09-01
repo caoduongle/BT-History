@@ -1,5 +1,9 @@
 package com.example.ui.screens
 
+import android.Manifest
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -33,6 +37,8 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.filled.Timeline
+import androidx.compose.material.icons.filled.Warning
+import com.example.util.BluetoothHelper
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -112,6 +118,19 @@ fun DeviceListScreen(
     val isAlertEnabled by viewModel.isDisconnectAlertEnabled.collectAsStateWithLifecycle()
 
     var showSimulateDialog by remember { mutableStateOf(false) }
+
+    var hasPermissions by remember {
+        mutableStateOf(BluetoothHelper.hasRequiredPermissionsForService(context))
+    }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions()
+    ) {
+        hasPermissions = BluetoothHelper.hasRequiredPermissionsForService(context)
+        if (hasPermissions) {
+            viewModel.toggleService(true)
+        }
+    }
 
     Scaffold(
         modifier = modifier
@@ -233,6 +252,81 @@ fun DeviceListScreen(
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 90.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            // --- SERVICE DISABLED / MISSING PERMISSION BANNER ---
+            if (!hasPermissions || !isServiceEnabled) {
+                item {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(20.dp))
+                            .border(1.dp, BentoAmber.copy(alpha = 0.5f), RoundedCornerShape(20.dp))
+                            .testTag("service_permission_warning_banner"),
+                        colors = CardDefaults.cardColors(containerColor = BentoAmberBg),
+                        shape = RoundedCornerShape(20.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    imageVector = Icons.Default.Warning,
+                                    contentDescription = null,
+                                    tint = BentoAmber,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = stringResource(R.string.banner_permission_required_title),
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = BentoTextPrimary
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(
+                                text = stringResource(R.string.banner_permission_required_desc),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = BentoTextSecondary,
+                                lineHeight = 18.sp
+                            )
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Button(
+                                onClick = {
+                                    val permissionsToRequest = mutableListOf(
+                                        Manifest.permission.ACCESS_FINE_LOCATION,
+                                        Manifest.permission.ACCESS_COARSE_LOCATION
+                                    )
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                                        permissionsToRequest.add(Manifest.permission.BLUETOOTH_CONNECT)
+                                        permissionsToRequest.add(Manifest.permission.BLUETOOTH_SCAN)
+                                    }
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                        permissionsToRequest.add(Manifest.permission.POST_NOTIFICATIONS)
+                                    }
+                                    permissionLauncher.launch(permissionsToRequest.toTypedArray())
+                                },
+                                shape = RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = BentoPurplePrimary,
+                                    contentColor = BentoPurpleLight
+                                ),
+                                modifier = Modifier
+                                    .align(Alignment.End)
+                                    .testTag("banner_grant_permission_button")
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.btn_grant_permissions),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
             // --- BENTO HERO TILES ROW ---
             item {
                 Row(

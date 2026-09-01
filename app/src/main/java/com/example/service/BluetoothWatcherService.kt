@@ -11,9 +11,11 @@ import android.content.IntentFilter
 import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
+import android.util.Log
 import androidx.core.app.ServiceCompat
 import com.example.BtWatcherApplication
 import com.example.receiver.BluetoothEventReceiver
+import com.example.util.BluetoothHelper
 import com.example.util.NotificationHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -92,6 +94,16 @@ class BluetoothWatcherService : Service() {
             return START_NOT_STICKY
         }
 
+        if (!BluetoothHelper.hasRequiredPermissionsForService(this)) {
+            Log.e(TAG, "BluetoothWatcherService started without required permissions. Stopping service safely.")
+            serviceScope.launch {
+                (application as? BtWatcherApplication)?.preferencesRepository?.setServiceEnabled(false)
+            }
+            stopForeground(STOP_FOREGROUND_REMOVE)
+            stopSelf()
+            return START_NOT_STICKY
+        }
+
         val notification = NotificationHelper.buildServiceNotification(this)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -129,10 +141,15 @@ class BluetoothWatcherService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     companion object {
+        private const val TAG = "BTWatcherService"
         const val ACTION_START_SERVICE = "com.example.btwatcher.action.START_SERVICE"
         const val ACTION_STOP_SERVICE = "com.example.btwatcher.action.STOP_SERVICE"
 
         fun startService(context: Context) {
+            if (!BluetoothHelper.hasRequiredPermissionsForService(context)) {
+                Log.w(TAG, "Cannot start BluetoothWatcherService: Missing required permissions")
+                return
+            }
             val intent = Intent(context, BluetoothWatcherService::class.java).apply {
                 action = ACTION_START_SERVICE
             }
