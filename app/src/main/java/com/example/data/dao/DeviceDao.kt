@@ -27,7 +27,10 @@ interface DeviceDao {
     @Query("SELECT * FROM devices WHERE mac_address = :macAddress LIMIT 1")
     suspend fun getDeviceByMac(macAddress: String): DeviceEntity?
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insert(device: DeviceEntity): Long
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertOrUpdate(device: DeviceEntity): Long
 
     @Update

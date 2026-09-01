@@ -9,7 +9,7 @@ import com.example.util.NotificationHelper
 class BtWatcherApplication : Application() {
 
     val database: AppDatabase by lazy { AppDatabase.getDatabase(this) }
-    val repository: DeviceRepository by lazy { DeviceRepository(database.deviceDao(), database.eventDao()) }
+    val repository: DeviceRepository by lazy { DeviceRepository(database, database.deviceDao(), database.eventDao()) }
     val preferencesRepository: PreferencesRepository by lazy { PreferencesRepository(this) }
 
     override fun onCreate() {
