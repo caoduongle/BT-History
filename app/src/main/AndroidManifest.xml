@@ -53,20 +53,9 @@
             android:exported="false"
             android:foregroundServiceType="connectedDevice|location" />
 
-        <!-- Broadcast Receiver for System Bluetooth Events -->
-        <receiver
-            android:name=".receiver.BluetoothEventReceiver"
-            android:enabled="true"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.bluetooth.device.action.ACL_CONNECTED" />
-                <action android:name="android.bluetooth.device.action.ACL_DISCONNECTED" />
-                <action android:name="android.bluetooth.device.action.BOND_STATE_CHANGED" />
-                <action android:name="android.bluetooth.a2dp.profile.action.CONNECTION_STATE_CHANGED" />
-                <action android:name="android.bluetooth.headset.profile.action.CONNECTION_STATE_CHANGED" />
-                <action android:name="android.bluetooth.adapter.action.STATE_CHANGED" />
-            </intent-filter>
-        </receiver>
+        <!-- Note: BluetoothEventReceiver is registered dynamically inside BluetoothWatcherService
+             to comply with Android 8.0+ (API 26) background execution limits on implicit broadcasts
+             and prevent duplicate event processing. Do not declare statically here. -->
 
         <!-- Boot Receiver to restart foreground service if enabled -->
         <receiver

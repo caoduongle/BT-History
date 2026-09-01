@@ -34,6 +34,18 @@ class BluetoothWatcherService : Service() {
         observeConnectedDevices()
     }
 
+    /**
+     * Đăng ký BluetoothEventReceiver động trong service thay vì khai báo tĩnh trong AndroidManifest.xml:
+     * 1. Từ Android 8.0 (API 26+), hệ thống áp dụng hạn chế thực thi nền (background execution limits)
+     *    đối với implicit broadcast (như ACTION_ACL_CONNECTED, ACTION_ACL_DISCONNECTED). Khai báo tĩnh trong
+     *    manifest không còn nhận được các broadcast này khi ứng dụng ở chế độ nền.
+     * 2. Khi BluetoothWatcherService chạy dưới dạng Foreground Service (với foregroundServiceType="connectedDevice|location"),
+     *    việc đăng ký động đảm bảo ứng dụng nhận sự kiện Bluetooth liên tục, ổn định và hợp lệ theo tiêu chuẩn Android.
+     * 3. Tránh xử lý trùng: Bằng cách chỉ đăng ký động duy nhất tại đây và gỡ bỏ khai báo tĩnh trong manifest,
+     *    mỗi sự kiện Bluetooth chỉ được phân phối và xử lý đúng 1 lần (không bị ghi trùng DB, không gọi định vị 2 lần,
+     *    không bắn thông báo trùng).
+     * 4. Từ Android 14 (API 34+), bắt buộc chỉ định cờ Context.RECEIVER_EXPORTED để nhận system broadcast.
+     */
     private fun registerBluetoothReceiver() {
         if (dynamicReceiver == null) {
             dynamicReceiver = BluetoothEventReceiver()
