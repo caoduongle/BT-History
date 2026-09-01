@@ -10,10 +10,17 @@
         android:usesPermissionFlags="neverForLocation"
         tools:targetApi="s" />
 
-    <!-- Location Permissions -->
+    <!-- Location Permissions:
+         Chỉ khai báo ACCESS_FINE_LOCATION và ACCESS_COARSE_LOCATION (Foreground Location).
+         Lý do không dùng ACCESS_BACKGROUND_LOCATION:
+         1. Ứng dụng chỉ lấy vị trí tại thời điểm sự kiện Bluetooth xảy ra trong lúc BluetoothWatcherService
+            (Foreground Service) đang chạy liên tục với notification hiển thị.
+         2. Theo tiêu chuẩn Android (API 29+) và quy định Google Play, việc lấy vị trí bên trong một Foreground Service
+            được định danh foregroundServiceType="location" được tính là Foreground Location Access.
+         3. Do đó, quyền ACCESS_BACKGROUND_LOCATION ("Cho phép mọi lúc") là HOÀN TOÀN KHÔNG CẦN THIẾT, giúp bảo vệ
+            quyền riêng tư người dùng và tránh thủ tục xét duyệt khắt khe/nguy cơ bị từ chối trên Google Play Store. -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
 
     <!-- Notifications & Foreground Service -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
