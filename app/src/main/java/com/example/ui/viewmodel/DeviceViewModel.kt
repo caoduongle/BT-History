@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 import androidx.annotation.StringRes
+import com.example.BuildConfig
 import com.example.R
 
 enum class TimeFilter(val label: String, @get:StringRes val titleRes: Int) {
@@ -53,6 +54,13 @@ class DeviceViewModel(
 
     val isOnboardingCompleted: StateFlow<Boolean> = preferencesRepository.isOnboardingCompletedFlow
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    val isDeveloperModeEnabled: StateFlow<Boolean> = preferencesRepository.isDeveloperModeEnabledFlow
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    val isSimulationAvailable: StateFlow<Boolean> = preferencesRepository.isDeveloperModeEnabledFlow
+        .map { it || BuildConfig.DEBUG }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), BuildConfig.DEBUG)
 
     val connectedCount: StateFlow<Int> = repository.connectedCountFlow
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
@@ -161,6 +169,12 @@ class DeviceViewModel(
             } else if (isServiceEnabled.value) {
                 BluetoothWatcherService.startService(context)
             }
+        }
+    }
+
+    fun setDeveloperModeEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            preferencesRepository.setDeveloperModeEnabled(enabled)
         }
     }
 

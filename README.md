@@ -46,6 +46,23 @@
 
 ---
 
+## 🧪 Kiểm thử trên Android Emulator & Chế độ Nhà phát triển (Developer Mode)
+
+### Môi trường máy ảo Emulator không có phần cứng Bluetooth
+- Khi thử nghiệm ứng dụng trên máy ảo Android Emulator hoặc thiết bị không có tai nghe/loa Bluetooth thật, ứng dụng cung cấp bộ công cụ **Mô phỏng sự kiện Bluetooth (Simulation Tools)** để tiêm thử các sự kiện Kết nối / Ngắt kết nối và tọa độ GPS mẫu.
+- Để đảm bảo tính toàn vẹn dữ liệu cho người dùng cuối trên các bản phát hành (Production Release), toàn bộ các nút bấm và menu mô phỏng này **bị ẩn hoàn toàn theo mặc định**.
+
+### Cách mở khoá Chế độ Nhà phát triển (Developer Options Easter Egg)
+1. Mở màn hình **Cài đặt (SettingsScreen)** trong ứng dụng.
+2. Cuộn xuống dưới cùng đến dòng hiển thị **Phiên bản ứng dụng** (`Phiên bản x.x.x`).
+3. **Chạm liên tục 7 lần** vào dòng phiên bản:
+   - Từ lần chạm thứ 4 đến thứ 6: Hệ thống hiển thị thông báo đếm ngược (*"Bạn còn X lần nhấn nữa để bật chế độ nhà phát triển"*).
+   - Lần chạm thứ 7: Thông báo kích hoạt thành công xuất hiện (*"Đã bật chế độ nhà phát triển! Các công cụ mô phỏng đã sẵn sàng"*).
+4. Sau khi mở khoá, nút **"Mô phỏng" (FAB)**, nút **"Thêm dữ liệu mẫu"** và các menu item mô phỏng trong chi tiết thiết bị sẽ tự động xuất hiện.
+- *Lưu ý: Đối với bản build Debug (`BuildConfig.DEBUG`), các công cụ mô phỏng luôn luôn hiển thị mặc định mà không cần thao tác mở khoá.*
+
+---
+
 ## 🛠️ Yêu cầu kỹ thuật & Công nghệ sử dụng
 
 - **Ngôn ngữ**: Kotlin 2.2.10

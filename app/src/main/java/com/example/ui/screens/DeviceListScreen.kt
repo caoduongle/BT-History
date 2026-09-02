@@ -116,6 +116,7 @@ fun DeviceListScreen(
     val connectedCount by viewModel.connectedCount.collectAsStateWithLifecycle()
     val todayEventsCount by viewModel.todayEventsCount.collectAsStateWithLifecycle()
     val isAlertEnabled by viewModel.isDisconnectAlertEnabled.collectAsStateWithLifecycle()
+    val isSimulationAvailable by viewModel.isSimulationAvailable.collectAsStateWithLifecycle()
 
     var showSimulateDialog by remember { mutableStateOf(false) }
 
@@ -213,32 +214,34 @@ fun DeviceListScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = { showSimulateDialog = true },
-                containerColor = BentoPurplePrimary,
-                contentColor = BentoPurpleLight,
-                shape = RoundedCornerShape(18.dp),
-                modifier = Modifier
-                    .border(1.dp, BentoPurpleLight.copy(alpha = 0.4f), RoundedCornerShape(18.dp))
-                    .testTag("simulate_fab")
-            ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
+            if (isSimulationAvailable) {
+                FloatingActionButton(
+                    onClick = { showSimulateDialog = true },
+                    containerColor = BentoPurplePrimary,
+                    contentColor = BentoPurpleLight,
+                    shape = RoundedCornerShape(18.dp),
+                    modifier = Modifier
+                        .border(1.dp, BentoPurpleLight.copy(alpha = 0.4f), RoundedCornerShape(18.dp))
+                        .testTag("simulate_fab")
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Speed,
-                        contentDescription = stringResource(R.string.btn_simulate),
-                        tint = BentoPurpleLight,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = stringResource(R.string.btn_simulate),
-                        fontWeight = FontWeight.Bold,
-                        style = MaterialTheme.typography.labelLarge,
-                        color = BentoPurpleLight
-                    )
+                    Row(
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Speed,
+                            contentDescription = stringResource(R.string.btn_simulate),
+                            tint = BentoPurpleLight,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = stringResource(R.string.btn_simulate),
+                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.labelLarge,
+                            color = BentoPurpleLight
+                        )
+                    }
                 }
             }
         }
@@ -557,7 +560,8 @@ fun DeviceListScreen(
                         searchQuery = searchQuery,
                         selectedFilter = selectedFilter,
                         onSyncPaired = { viewModel.syncPairedDevices() },
-                        onSimulateDemo = { showSimulateDialog = true }
+                        onSimulateDemo = { showSimulateDialog = true },
+                        isSimulationAvailable = isSimulationAvailable
                     )
                 }
             } else {
@@ -599,6 +603,7 @@ private fun EmptyStateView(
     selectedFilter: TimeFilter,
     onSyncPaired: () -> Unit,
     onSimulateDemo: () -> Unit,
+    isSimulationAvailable: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -672,23 +677,27 @@ private fun EmptyStateView(
                 Text(stringResource(R.string.btn_get_paired_devices), fontWeight = FontWeight.SemiBold)
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            if (isSimulationAvailable) {
+                Spacer(modifier = Modifier.height(10.dp))
 
-            OutlinedButton(
-                onClick = onSimulateDemo,
-                shape = RoundedCornerShape(14.dp),
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = BentoPurpleLight,
-                    containerColor = BentoSurfaceVariant
-                ),
-                border = ButtonDefaults.outlinedButtonBorder.copy(
-                    brush = androidx.compose.ui.graphics.SolidColor(BentoOutline)
-                )
-            ) {
-                Icon(imageVector = Icons.Default.Speed, contentDescription = null, modifier = Modifier.size(18.dp))
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(stringResource(R.string.btn_add_sample_data), fontWeight = FontWeight.SemiBold)
+                OutlinedButton(
+                    onClick = onSimulateDemo,
+                    shape = RoundedCornerShape(14.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("btn_add_sample_data"),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = BentoPurpleLight,
+                        containerColor = BentoSurfaceVariant
+                    ),
+                    border = ButtonDefaults.outlinedButtonBorder.copy(
+                        brush = androidx.compose.ui.graphics.SolidColor(BentoOutline)
+                    )
+                ) {
+                    Icon(imageVector = Icons.Default.Speed, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(stringResource(R.string.btn_add_sample_data), fontWeight = FontWeight.SemiBold)
+                }
             }
         }
     }

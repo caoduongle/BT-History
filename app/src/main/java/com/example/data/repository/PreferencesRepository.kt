@@ -18,6 +18,7 @@ class PreferencesRepository(private val context: Context) {
         val KEY_SERVICE_ENABLED = booleanPreferencesKey("service_enabled")
         val KEY_DISCONNECT_ALERT = booleanPreferencesKey("disconnect_alert")
         val KEY_ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
+        val KEY_DEVELOPER_MODE_ENABLED = booleanPreferencesKey("developer_mode_enabled")
         val KEY_LAST_KNOWN_LOCATION_NAME = stringPreferencesKey("last_known_location_name")
     }
 
@@ -31,6 +32,10 @@ class PreferencesRepository(private val context: Context) {
 
     val isOnboardingCompletedFlow: Flow<Boolean> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.KEY_ONBOARDING_COMPLETED] ?: false
+    }
+
+    val isDeveloperModeEnabledFlow: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.KEY_DEVELOPER_MODE_ENABLED] ?: false
     }
 
     suspend fun setServiceEnabled(enabled: Boolean) {
@@ -48,6 +53,12 @@ class PreferencesRepository(private val context: Context) {
     suspend fun setOnboardingCompleted(completed: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.KEY_ONBOARDING_COMPLETED] = completed
+        }
+    }
+
+    suspend fun setDeveloperModeEnabled(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.KEY_DEVELOPER_MODE_ENABLED] = enabled
         }
     }
 }

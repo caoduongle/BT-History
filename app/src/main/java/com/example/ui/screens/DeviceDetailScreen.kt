@@ -94,6 +94,7 @@ fun DeviceDetailScreen(
     val device by viewModel.selectedDevice.collectAsStateWithLifecycle()
     val events by viewModel.selectedDeviceEvents.collectAsStateWithLifecycle()
     val lastDisconnectEvent by viewModel.lastSeenDisconnectEvent.collectAsStateWithLifecycle()
+    val isSimulationAvailable by viewModel.isSimulationAvailable.collectAsStateWithLifecycle()
 
     var showMenu by remember { mutableStateOf(false) }
     var showDeleteConfirm by remember { mutableStateOf(false) }
@@ -159,37 +160,39 @@ fun DeviceDetailScreen(
                         onDismissRequest = { showMenu = false },
                         modifier = Modifier.background(BentoSurface)
                     ) {
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.menu_simulate_connect), color = BentoTextPrimary) },
-                            onClick = {
-                                showMenu = false
-                                viewModel.simulateTestEvent(
-                                    deviceName = currentDevice.name,
-                                    macAddress = currentDevice.macAddress,
-                                    deviceType = currentDevice.deviceType,
-                                    eventType = "CONNECT"
-                                )
-                            },
-                            leadingIcon = {
-                                Icon(Icons.Default.BluetoothConnected, contentDescription = null, tint = BentoGreen)
-                            }
-                        )
+                        if (isSimulationAvailable) {
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.menu_simulate_connect), color = BentoTextPrimary) },
+                                onClick = {
+                                    showMenu = false
+                                    viewModel.simulateTestEvent(
+                                        deviceName = currentDevice.name,
+                                        macAddress = currentDevice.macAddress,
+                                        deviceType = currentDevice.deviceType,
+                                        eventType = "CONNECT"
+                                    )
+                                },
+                                leadingIcon = {
+                                    Icon(Icons.Default.BluetoothConnected, contentDescription = null, tint = BentoGreen)
+                                }
+                            )
 
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.menu_simulate_disconnect), color = BentoTextPrimary) },
-                            onClick = {
-                                showMenu = false
-                                viewModel.simulateTestEvent(
-                                    deviceName = currentDevice.name,
-                                    macAddress = currentDevice.macAddress,
-                                    deviceType = currentDevice.deviceType,
-                                    eventType = "DISCONNECT"
-                                )
-                            },
-                            leadingIcon = {
-                                Icon(Icons.Default.BluetoothDisabled, contentDescription = null, tint = BentoRed)
-                            }
-                        )
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.menu_simulate_disconnect), color = BentoTextPrimary) },
+                                onClick = {
+                                    showMenu = false
+                                    viewModel.simulateTestEvent(
+                                        deviceName = currentDevice.name,
+                                        macAddress = currentDevice.macAddress,
+                                        deviceType = currentDevice.deviceType,
+                                        eventType = "DISCONNECT"
+                                    )
+                                },
+                                leadingIcon = {
+                                    Icon(Icons.Default.BluetoothDisabled, contentDescription = null, tint = BentoRed)
+                                }
+                            )
+                        }
 
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.menu_delete_device), color = BentoRed) },

@@ -5,10 +5,13 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import android.widget.Toast
+import com.example.BuildConfig
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -56,6 +59,8 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -100,7 +105,10 @@ fun SettingsScreen(
     val context = LocalContext.current
     val isServiceEnabled by viewModel.isServiceEnabled.collectAsStateWithLifecycle()
     val isDisconnectAlertEnabled by viewModel.isDisconnectAlertEnabled.collectAsStateWithLifecycle()
+    val isDeveloperModeEnabled by viewModel.isDeveloperModeEnabled.collectAsStateWithLifecycle()
 
+    var devModeTapCount by remember { mutableIntStateOf(0) }
+    var lastDevModeTapTime by remember { mutableLongStateOf(0L) }
     var showClearHistoryDialog by remember { mutableStateOf(false) }
 
     var hasPermissions by remember {
@@ -406,6 +414,70 @@ fun SettingsScreen(
                         text = stringResource(R.string.setting_map_desc),
                         style = MaterialTheme.typography.bodySmall,
                         color = BentoTextSecondary
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // App Version & Easter Egg for Developer Mode
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(16.dp))
+                    .clickable {
+                        val currentTime = System.currentTimeMillis()
+                        if (currentTime - lastDevModeTapTime > 3000L) {
+                            devModeTapCount = 1
+                        } else {
+                            devModeTapCount++
+                        }
+                        lastDevModeTapTime = currentTime
+
+                        if (isDeveloperModeEnabled) {
+                            Toast.makeText(
+                                context,
+                                context.getString(R.string.toast_dev_mode_already_active),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else if (devModeTapCount >= 7) {
+                            viewModel.setDeveloperModeEnabled(true)
+                            devModeTapCount = 0
+                            Toast.makeText(
+                                context,
+                                context.getString(R.string.toast_dev_mode_activated),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else if (devModeTapCount >= 4) {
+                            val remaining = 7 - devModeTapCount
+                            Toast.makeText(
+                                context,
+                                context.getString(R.string.toast_dev_mode_countdown, remaining),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                    .padding(vertical = 12.dp, horizontal = 16.dp)
+                    .testTag("settings_app_version"),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = stringResource(
+                        R.string.setting_version_format,
+                        BuildConfig.VERSION_NAME,
+                        BuildConfig.VERSION_CODE
+                    ),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = BentoTextMuted,
+                    fontWeight = FontWeight.Medium
+                )
+                if (isDeveloperModeEnabled) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = stringResource(R.string.setting_developer_mode_active),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = BentoPurpleLight,
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }

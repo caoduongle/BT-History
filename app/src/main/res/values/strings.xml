@@ -165,4 +165,11 @@
     <string name="banner_permission_required_desc">Thiếu quyền Bluetooth hoặc Vị trí. Hãy cấp quyền để tự động theo dõi và ghi nhận vị trí thiết bị.</string>
     <string name="btn_grant_permissions">Cấp quyền</string>
     <string name="setting_service_missing_perms_warning">⚠️ Dịch vụ giám sát đang tắt vì chưa được cấp đủ quyền Bluetooth hoặc Vị trí. Hãy bấm kiểm tra quyền bên dưới để kích hoạt.</string>
+
+    <!-- Developer Mode & App Version -->
+    <string name="setting_version_format">Phiên bản %1$s (%2$d)</string>
+    <string name="setting_developer_mode_active">Chế độ nhà phát triển: ĐÃ BẬT</string>
+    <string name="toast_dev_mode_countdown">Bạn còn %d lần nhấn nữa để bật chế độ nhà phát triển.</string>
+    <string name="toast_dev_mode_activated">Đã bật chế độ nhà phát triển! Các công cụ mô phỏng đã sẵn sàng.</string>
+    <string name="toast_dev_mode_already_active">Bạn đã là nhà phát triển rồi!</string>
 </resources>
