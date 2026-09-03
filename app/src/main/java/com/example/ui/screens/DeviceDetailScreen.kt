@@ -1,5 +1,6 @@
 package com.example.ui.screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -26,24 +28,29 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PinDrop
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,6 +64,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import com.example.R
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -93,8 +101,26 @@ fun DeviceDetailScreen(
     val context = LocalContext.current
     val device by viewModel.selectedDevice.collectAsStateWithLifecycle()
     val events by viewModel.selectedDeviceEvents.collectAsStateWithLifecycle()
+    val hasMoreEvents by viewModel.hasMoreDeviceEvents.collectAsStateWithLifecycle()
+    val isLoadingEvents by viewModel.isDeviceEventsLoading.collectAsStateWithLifecycle()
     val lastDisconnectEvent by viewModel.lastSeenDisconnectEvent.collectAsStateWithLifecycle()
     val isSimulationAvailable by viewModel.isSimulationAvailable.collectAsStateWithLifecycle()
+
+    val listState = rememberLazyListState()
+    val shouldLoadMore = remember {
+        derivedStateOf {
+            val total = listState.layoutInfo.totalItemsCount
+            val last = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+            total > 0 && last >= total - 2
+        }
+    }
+
+    LaunchedEffect(shouldLoadMore.value) {
+        val dev = viewModel.selectedDevice.value
+        if (dev != null && shouldLoadMore.value && hasMoreEvents && !isLoadingEvents) {
+            viewModel.loadMoreDeviceEvents(dev.id)
+        }
+    }
 
     var showMenu by remember { mutableStateOf(false) }
     var showDeleteConfirm by remember { mutableStateOf(false) }
@@ -213,6 +239,7 @@ fun DeviceDetailScreen(
         }
     ) { paddingValues ->
         LazyColumn(
+            state = listState,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
@@ -294,6 +321,54 @@ fun DeviceDetailScreen(
                         isFirst = index == 0,
                         isLast = index == events.lastIndex
                     )
+                }
+
+                if (hasMoreEvents) {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 12.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            if (isLoadingEvents) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(24.dp),
+                                    color = BentoPurpleLight,
+                                    strokeWidth = 2.dp
+                                )
+                            } else {
+                                OutlinedButton(
+                                    onClick = { viewModel.loadMoreDeviceEvents(currentDevice.id) },
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = ButtonDefaults.outlinedButtonColors(
+                                        contentColor = BentoPurpleLight
+                                    ),
+                                    border = BorderStroke(1.dp, BentoPurpleLight),
+                                    modifier = Modifier.testTag("btn_load_more_device_events")
+                                ) {
+                                    Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(16.dp))
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = stringResource(R.string.btn_load_more_events),
+                                        style = MaterialTheme.typography.labelMedium
+                                    )
+                                }
+                            }
+                        }
+                    }
+                } else if (events.isNotEmpty()) {
+                    item {
+                        Text(
+                            text = stringResource(R.string.no_more_events),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = BentoTextMuted,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 12.dp),
+                            textAlign = TextAlign.Center
+                        )
+                    }
                 }
             }
 

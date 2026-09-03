@@ -59,7 +59,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -117,6 +120,24 @@ fun DeviceListScreen(
     val todayEventsCount by viewModel.todayEventsCount.collectAsStateWithLifecycle()
     val isAlertEnabled by viewModel.isDisconnectAlertEnabled.collectAsStateWithLifecycle()
     val isSimulationAvailable by viewModel.isSimulationAvailable.collectAsStateWithLifecycle()
+    val timelineEvents by viewModel.paginatedTimelineEvents.collectAsStateWithLifecycle()
+    val hasMoreTimeline by viewModel.hasMoreTimelineEvents.collectAsStateWithLifecycle()
+    val isTimelineLoading by viewModel.isTimelineLoading.collectAsStateWithLifecycle()
+
+    val listState = rememberLazyListState()
+    val shouldLoadMore = remember {
+        derivedStateOf {
+            val total = listState.layoutInfo.totalItemsCount
+            val last = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+            total > 0 && last >= total - 2
+        }
+    }
+
+    LaunchedEffect(shouldLoadMore.value) {
+        if (shouldLoadMore.value && hasMoreTimeline && !isTimelineLoading) {
+            viewModel.loadMoreTimelineEvents()
+        }
+    }
 
     var showSimulateDialog by remember { mutableStateOf(false) }
 
@@ -247,6 +268,7 @@ fun DeviceListScreen(
         }
     ) { paddingValues ->
         LazyColumn(
+            state = listState,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)

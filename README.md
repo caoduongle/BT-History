@@ -12,6 +12,10 @@
   - Phân biệt giữa hành vi **người dùng chủ động tắt Bluetooth** (không gửi cảnh báo làm phiền).
   - Và hành vi **thiết bị rớt kết nối đột ngột** (phát cảnh báo khẩn cấp kèm vị trí cuối cùng).
 - 🛡️ **Xử lý sự kiện nguyên tử (Thread-safe & Concurrency-safe)**: Ghi nhận sự kiện qua Room Transaction (`withTransaction`), chống trùng lặp thiết bị và bảo toàn toàn vẹn khóa ngoại.
+- 📜 **Phân trang lịch sử sự kiện (Chunked Pagination)**: Giới hạn bộ nhớ $< 50\text{ MB}$ ngay cả khi cơ sở dữ liệu phình to hàng năm; hỗ trợ cuộn vô tận mượt mà tại màn hình chi tiết thiết bị và danh sách sự kiện.
+- ⏱️ **Chính sách lưu trữ & Dọn dẹp tự động (Data Retention Policy)**: Cấu hình linh hoạt thời gian giữ lịch sử (30, 90, 180 ngày mặc định, 1 năm hoặc Không giới hạn); hệ thống tự động dọn sạch dữ liệu hết hạn trong nền khi service khởi chạy.
+- 💾 **Xuất dữ liệu an toàn qua Storage Access Framework (SAF)**: Cho phép sao lưu toàn bộ thiết bị và lịch sử ra file JSON hoặc CSV chuẩn UTF-8 / RFC 4180, tích hợp cảnh báo nhắc nhở sao lưu trước khi xoá toàn bộ lịch sử.
+- 🗄️ **Di chuyển cơ sở dữ liệu an toàn (Room Migration v1 $\rightarrow$ v2)**: Bổ sung chỉ mục tổng hợp `(device_id, timestamp)` qua `MIGRATION_1_2` giúp tối ưu hóa truy vấn phân trang mà không gây mất mát dữ liệu.
 
 ---
 

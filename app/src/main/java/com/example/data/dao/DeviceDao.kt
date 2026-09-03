@@ -15,6 +15,9 @@ interface DeviceDao {
     @Query("SELECT * FROM devices ORDER BY last_event_timestamp DESC")
     fun getAllDevicesFlow(): Flow<List<DeviceEntity>>
 
+    @Query("SELECT * FROM devices ORDER BY last_event_timestamp DESC")
+    suspend fun getAllDevices(): List<DeviceEntity>
+
     @Query("SELECT * FROM devices WHERE is_connected = 1 ORDER BY last_event_timestamp DESC")
     fun getConnectedDevicesFlow(): Flow<List<DeviceEntity>>
 

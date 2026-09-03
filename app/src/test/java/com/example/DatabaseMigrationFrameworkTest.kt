@@ -39,10 +39,11 @@ class DatabaseMigrationFrameworkTest {
     }
 
     @Test
-    fun testAllMigrationsRegistry_isDefinedAndAccessible() {
+    fun testAllMigrationsRegistry_isDefinedAndContainsMigration1To2() {
         assertNotNull("ALL_MIGRATIONS array must not be null", AppDatabase.ALL_MIGRATIONS)
-        // At version 1, ALL_MIGRATIONS is initially empty
-        assertEquals("Version 1 should start with 0 registered migrations", 0, AppDatabase.ALL_MIGRATIONS.size)
+        assertEquals("Version 2 should have 1 registered migration (MIGRATION_1_2)", 1, AppDatabase.ALL_MIGRATIONS.size)
+        assertEquals("Start version must be 1", 1, AppDatabase.MIGRATION_1_2.startVersion)
+        assertEquals("End version must be 2", 2, AppDatabase.MIGRATION_1_2.endVersion)
     }
 
     @Test

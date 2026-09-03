@@ -32,6 +32,24 @@ interface EventDao {
     @Delete
     suspend fun delete(event: EventEntity)
 
+    @Query("SELECT * FROM events ORDER BY timestamp DESC LIMIT :limit OFFSET :offset")
+    suspend fun getEventsPaged(limit: Int, offset: Int): List<EventEntity>
+
+    @Query("SELECT * FROM events WHERE device_id = :deviceId ORDER BY timestamp DESC LIMIT :limit OFFSET :offset")
+    suspend fun getEventsByDeviceIdPaged(deviceId: Long, limit: Int, offset: Int): List<EventEntity>
+
+    @Query("SELECT COUNT(*) FROM events")
+    fun getTotalEventCountFlow(): Flow<Int>
+
+    @Query("SELECT COUNT(*) FROM events WHERE device_id = :deviceId")
+    fun getEventCountByDeviceIdFlow(deviceId: Long): Flow<Int>
+
+    @Query("SELECT * FROM events ORDER BY timestamp ASC")
+    suspend fun getAllEvents(): List<EventEntity>
+
+    @Query("DELETE FROM events WHERE timestamp < :cutoffTimestamp")
+    suspend fun deleteEventsOlderThan(cutoffTimestamp: Long): Int
+
     @Query("DELETE FROM events WHERE device_id = :deviceId")
     suspend fun deleteEventsByDeviceId(deviceId: Long)
 

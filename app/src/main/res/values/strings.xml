@@ -172,4 +172,23 @@
     <string name="toast_dev_mode_countdown">Bạn còn %d lần nhấn nữa để bật chế độ nhà phát triển.</string>
     <string name="toast_dev_mode_activated">Đã bật chế độ nhà phát triển! Các công cụ mô phỏng đã sẵn sàng.</string>
     <string name="toast_dev_mode_already_active">Bạn đã là nhà phát triển rồi!</string>
+
+    <!-- Data Retention, Export & Pagination -->
+    <string name="setting_retention_title">Thời gian lưu lịch sử</string>
+    <string name="setting_retention_desc">Tự động dọn dẹp các sự kiện cũ hơn ngưỡng này để giải phóng bộ nhớ</string>
+    <string name="retention_30_days">30 ngày</string>
+    <string name="retention_90_days">90 ngày</string>
+    <string name="retention_180_days">180 ngày (Mặc định)</string>
+    <string name="retention_365_days">1 năm (365 ngày)</string>
+    <string name="retention_unlimited">Không giới hạn</string>
+    <string name="dialog_retention_title">Chọn thời gian lưu lịch sử</string>
+    <string name="setting_export_title">Xuất lịch sử ra file</string>
+    <string name="setting_export_desc">Xuất danh sách thiết bị và sự kiện ra file JSON để sao lưu an toàn</string>
+    <string name="btn_export_before_clear">Xuất dữ liệu trước</string>
+    <string name="toast_export_success">Đã xuất thành công %1$d thiết bị và %2$d sự kiện!</string>
+    <string name="toast_export_empty">Chưa có dữ liệu lịch sử nào để xuất.</string>
+    <string name="toast_export_error">Lỗi khi xuất file: %s</string>
+    <string name="dialog_clear_all_with_export_message">Hành động này sẽ xóa vĩnh viễn danh sách mọi thiết bị và toàn bộ dòng thời gian sự kiện đã lưu trên máy. Bạn nên xuất dữ liệu sao lưu trước khi xoá.</string>
+    <string name="btn_load_more_events">Tải thêm sự kiện cũ hơn</string>
+    <string name="no_more_events">Đã hiển thị toàn bộ sự kiện</string>
 </resources>

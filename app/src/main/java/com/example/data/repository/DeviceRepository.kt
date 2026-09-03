@@ -133,4 +133,24 @@ class DeviceRepository(
         eventDao.deleteAll()
         deviceDao.deleteAll()
     }
+
+    suspend fun getEventsPaged(limit: Int, offset: Int): List<EventEntity> =
+        eventDao.getEventsPaged(limit, offset)
+
+    suspend fun getEventsByDeviceIdPaged(deviceId: Long, limit: Int, offset: Int): List<EventEntity> =
+        eventDao.getEventsByDeviceIdPaged(deviceId, limit, offset)
+
+    suspend fun deleteEventsOlderThan(cutoffTimestamp: Long): Int =
+        eventDao.deleteEventsOlderThan(cutoffTimestamp)
+
+    val totalEventCountFlow: Flow<Int> = eventDao.getTotalEventCountFlow()
+
+    fun getEventCountByDeviceIdFlow(deviceId: Long): Flow<Int> =
+        eventDao.getEventCountByDeviceIdFlow(deviceId)
+
+    suspend fun getAllDevices(): List<DeviceEntity> =
+        deviceDao.getAllDevices()
+
+    suspend fun getAllEvents(): List<EventEntity> =
+        eventDao.getAllEvents()
 }

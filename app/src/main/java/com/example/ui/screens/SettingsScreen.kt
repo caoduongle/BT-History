@@ -37,9 +37,13 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Security
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material.icons.filled.Sync
+import androidx.compose.runtime.rememberCoroutineScope
+import com.example.ui.viewmodel.ExportFormat
+import kotlinx.coroutines.launch
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -106,10 +110,49 @@ fun SettingsScreen(
     val isServiceEnabled by viewModel.isServiceEnabled.collectAsStateWithLifecycle()
     val isDisconnectAlertEnabled by viewModel.isDisconnectAlertEnabled.collectAsStateWithLifecycle()
     val isDeveloperModeEnabled by viewModel.isDeveloperModeEnabled.collectAsStateWithLifecycle()
+    val historyRetentionDays by viewModel.historyRetentionDays.collectAsStateWithLifecycle()
 
     var devModeTapCount by remember { mutableIntStateOf(0) }
     var lastDevModeTapTime by remember { mutableLongStateOf(0L) }
     var showClearHistoryDialog by remember { mutableStateOf(false) }
+    var showRetentionDialog by remember { mutableStateOf(false) }
+
+    val coroutineScope = rememberCoroutineScope()
+    val exportLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("application/json")
+    ) { uri ->
+        if (uri != null) {
+            coroutineScope.launch {
+                val result = viewModel.exportHistoryToUri(uri, ExportFormat.JSON)
+                result.onSuccess { summary ->
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.toast_export_success, summary.deviceCount, summary.eventCount),
+                        Toast.LENGTH_LONG
+                    ).show()
+                }.onFailure { err ->
+                    if (err.message == "EMPTY") {
+                        Toast.makeText(context, context.getString(R.string.toast_export_empty), Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(
+                            context,
+                            context.getString(R.string.toast_export_error, err.localizedMessage ?: "Unknown"),
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
+            }
+        }
+    }
+
+    val retentionLabel = when (historyRetentionDays) {
+        30 -> stringResource(R.string.retention_30_days)
+        90 -> stringResource(R.string.retention_90_days)
+        180 -> stringResource(R.string.retention_180_days)
+        365 -> stringResource(R.string.retention_365_days)
+        0 -> stringResource(R.string.retention_unlimited)
+        else -> "$historyRetentionDays ngày"
+    }
 
     var hasPermissions by remember {
         mutableStateOf(BluetoothHelper.hasRequiredPermissionsForService(context))
@@ -304,6 +347,71 @@ fun SettingsScreen(
                 shape = RoundedCornerShape(24.dp)
             ) {
                 Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    // Row: Retention setting
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(14.dp))
+                            .clickable { showRetentionDialog = true }
+                            .padding(vertical = 6.dp)
+                            .testTag("setting_retention_row"),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = stringResource(R.string.setting_retention_title),
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = BentoTextPrimary
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = stringResource(R.string.setting_retention_desc),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = BentoTextSecondary,
+                                lineHeight = 15.sp
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(BentoPurplePrimary.copy(alpha = 0.5f))
+                                .border(1.dp, BentoPurpleLight.copy(alpha = 0.4f), RoundedCornerShape(10.dp))
+                                .padding(horizontal = 10.dp, vertical = 6.dp)
+                                .testTag("retention_setting_badge")
+                        ) {
+                            Text(
+                                text = retentionLabel,
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = BentoPurpleLight
+                            )
+                        }
+                    }
+
+                    // Button: Export History to File
+                    OutlinedButton(
+                        onClick = {
+                            val filename = "bt_history_backup_${System.currentTimeMillis()}.json"
+                            exportLauncher.launch(filename)
+                        },
+                        modifier = Modifier.fillMaxWidth().testTag("btn_export_history"),
+                        shape = RoundedCornerShape(14.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = BentoPurpleLight,
+                            containerColor = BentoSurfaceVariant
+                        ),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, BentoOutline)
+                    ) {
+                        Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(stringResource(R.string.setting_export_title), fontWeight = FontWeight.SemiBold)
+                    }
+
+                    Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(BentoOutline))
+
                     // Sync paired devices
                     Button(
                         onClick = { viewModel.syncPairedDevices() },
@@ -486,24 +594,105 @@ fun SettingsScreen(
         }
     }
 
-    // Clear All Confirmation Dialog
+    // Clear All Confirmation Dialog with Pre-Wipe Backup Advice
     if (showClearHistoryDialog) {
         AlertDialog(
             onDismissRequest = { showClearHistoryDialog = false },
             title = { Text(stringResource(R.string.dialog_clear_all_title), color = BentoTextPrimary, fontWeight = FontWeight.Bold) },
-            text = { Text(stringResource(R.string.dialog_clear_all_message), color = BentoTextSecondary) },
+            text = {
+                Text(
+                    text = stringResource(R.string.dialog_clear_all_with_export_message),
+                    color = BentoTextSecondary,
+                    style = MaterialTheme.typography.bodyMedium,
+                    lineHeight = 20.sp
+                )
+            },
             confirmButton = {
                 TextButton(
                     onClick = {
                         viewModel.clearAllHistory()
                         showClearHistoryDialog = false
-                    }
+                    },
+                    modifier = Modifier.testTag("dialog_confirm_clear_btn")
                 ) {
                     Text(stringResource(R.string.btn_confirm_clear_all), color = BentoRed, fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showClearHistoryDialog = false }) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    TextButton(
+                        onClick = {
+                            val filename = "bt_history_backup_${System.currentTimeMillis()}.json"
+                            exportLauncher.launch(filename)
+                        },
+                        modifier = Modifier.testTag("dialog_export_before_clear_btn")
+                    ) {
+                        Icon(Icons.Default.Share, contentDescription = null, tint = BentoPurpleLight, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(stringResource(R.string.btn_export_before_clear), color = BentoPurpleLight, fontWeight = FontWeight.Bold)
+                    }
+                    TextButton(onClick = { showClearHistoryDialog = false }) {
+                        Text(stringResource(R.string.btn_cancel), color = BentoTextMuted)
+                    }
+                }
+            },
+            containerColor = BentoSurface,
+            shape = RoundedCornerShape(24.dp)
+        )
+    }
+
+    // Retention Selection Dialog
+    if (showRetentionDialog) {
+        val options = listOf(
+            30 to stringResource(R.string.retention_30_days),
+            90 to stringResource(R.string.retention_90_days),
+            180 to stringResource(R.string.retention_180_days),
+            365 to stringResource(R.string.retention_365_days),
+            0 to stringResource(R.string.retention_unlimited)
+        )
+        AlertDialog(
+            onDismissRequest = { showRetentionDialog = false },
+            title = {
+                Text(
+                    text = stringResource(R.string.dialog_retention_title),
+                    color = BentoTextPrimary,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    options.forEach { (days, label) ->
+                        val isSelected = historyRetentionDays == days
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(if (isSelected) BentoPurplePrimary.copy(alpha = 0.4f) else BentoSurfaceVariant)
+                                .border(1.dp, if (isSelected) BentoPurpleLight else BentoOutline, RoundedCornerShape(12.dp))
+                                .clickable {
+                                    viewModel.setHistoryRetentionDays(days)
+                                    showRetentionDialog = false
+                                }
+                                .padding(horizontal = 14.dp, vertical = 12.dp)
+                                .testTag("retention_option_$days"),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = label,
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                color = if (isSelected) BentoPurpleLight else BentoTextPrimary
+                            )
+                            if (isSelected) {
+                                Icon(Icons.Default.Check, contentDescription = null, tint = BentoPurpleLight, modifier = Modifier.size(18.dp))
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showRetentionDialog = false }) {
                     Text(stringResource(R.string.btn_cancel), color = BentoPurpleLight)
                 }
             },

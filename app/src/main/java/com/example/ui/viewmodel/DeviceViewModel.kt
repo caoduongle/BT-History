@@ -24,10 +24,22 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-
+import android.net.Uri
 import androidx.annotation.StringRes
 import com.example.BuildConfig
 import com.example.R
+import com.example.util.ExportHelper
+import kotlinx.coroutines.flow.first
+
+enum class ExportFormat {
+    JSON, CSV
+}
+
+data class ExportResult(
+    val deviceCount: Int,
+    val eventCount: Int,
+    val uri: Uri
+)
 
 enum class TimeFilter(val label: String, @get:StringRes val titleRes: Int) {
     ALL("Tất cả", R.string.filter_all),
@@ -61,6 +73,30 @@ class DeviceViewModel(
     val isSimulationAvailable: StateFlow<Boolean> = preferencesRepository.isDeveloperModeEnabledFlow
         .map { it || BuildConfig.DEBUG }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), BuildConfig.DEBUG)
+
+    val historyRetentionDays: StateFlow<Int> = preferencesRepository.historyRetentionDaysFlow
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 180)
+
+    fun setHistoryRetentionDays(days: Int) {
+        viewModelScope.launch {
+            preferencesRepository.setHistoryRetentionDays(days)
+            if (days > 0) {
+                pruneExpiredEvents()
+            }
+        }
+    }
+
+    suspend fun pruneExpiredEvents(): Int {
+        val days = preferencesRepository.historyRetentionDaysFlow.first()
+        if (days <= 0) return 0
+        val cutoff = System.currentTimeMillis() - (days * 24L * 60 * 60 * 1000L)
+        val deleted = repository.deleteEventsOlderThan(cutoff)
+        if (deleted > 0) {
+            selectedDeviceId.value?.let { refreshDeviceEvents(it) }
+            refreshTimelineEvents()
+        }
+        return deleted
+    }
 
     val connectedCount: StateFlow<Int> = repository.connectedCountFlow
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
@@ -110,9 +146,88 @@ class DeviceViewModel(
         if (id != null) repository.getDeviceByIdFlow(id) else flowOf(null)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
-    val selectedDeviceEvents: StateFlow<List<EventEntity>> = selectedDeviceId.flatMapLatest { id ->
-        if (id != null) repository.getEventsByDeviceIdFlow(id) else flowOf(emptyList())
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    // --- PAGINATED DEVICE EVENTS ---
+    val deviceEventsPageSize = 30
+    private var currentDeviceOffset = 0
+    private val _paginatedDeviceEvents = MutableStateFlow<List<EventEntity>>(emptyList())
+    val paginatedDeviceEvents: StateFlow<List<EventEntity>> = _paginatedDeviceEvents
+    val selectedDeviceEvents: StateFlow<List<EventEntity>> = _paginatedDeviceEvents
+    val hasMoreDeviceEvents = MutableStateFlow(false)
+    val isDeviceEventsLoading = MutableStateFlow(false)
+
+    fun loadInitialDeviceEvents(deviceId: Long) {
+        currentDeviceOffset = 0
+        viewModelScope.launch {
+            isDeviceEventsLoading.value = true
+            val page = repository.getEventsByDeviceIdPaged(deviceId, limit = deviceEventsPageSize, offset = 0)
+            _paginatedDeviceEvents.value = page
+            currentDeviceOffset = page.size
+            hasMoreDeviceEvents.value = page.size >= deviceEventsPageSize
+            isDeviceEventsLoading.value = false
+        }
+    }
+
+    fun loadMoreDeviceEvents(deviceId: Long) {
+        if (isDeviceEventsLoading.value || !hasMoreDeviceEvents.value) return
+        viewModelScope.launch {
+            isDeviceEventsLoading.value = true
+            val nextPage = repository.getEventsByDeviceIdPaged(deviceId, limit = deviceEventsPageSize, offset = currentDeviceOffset)
+            _paginatedDeviceEvents.value = _paginatedDeviceEvents.value + nextPage
+            currentDeviceOffset += nextPage.size
+            hasMoreDeviceEvents.value = nextPage.size >= deviceEventsPageSize
+            isDeviceEventsLoading.value = false
+        }
+    }
+
+    fun refreshDeviceEvents(deviceId: Long) {
+        val countToLoad = if (currentDeviceOffset > 0) currentDeviceOffset else deviceEventsPageSize
+        viewModelScope.launch {
+            val page = repository.getEventsByDeviceIdPaged(deviceId, limit = countToLoad, offset = 0)
+            _paginatedDeviceEvents.value = page
+            hasMoreDeviceEvents.value = page.size >= countToLoad
+        }
+    }
+
+    // --- PAGINATED TIMELINE (GLOBAL) ---
+    val timelinePageSize = 50
+    private var currentTimelineOffset = 0
+    private val _paginatedTimelineEvents = MutableStateFlow<List<EventEntity>>(emptyList())
+    val paginatedTimelineEvents: StateFlow<List<EventEntity>> = _paginatedTimelineEvents
+    val hasMoreTimelineEvents = MutableStateFlow(false)
+    val isTimelineLoading = MutableStateFlow(false)
+
+    fun loadInitialTimelineEvents() {
+        currentTimelineOffset = 0
+        viewModelScope.launch {
+            isTimelineLoading.value = true
+            val page = repository.getEventsPaged(limit = timelinePageSize, offset = 0)
+            _paginatedTimelineEvents.value = page
+            currentTimelineOffset = page.size
+            hasMoreTimelineEvents.value = page.size >= timelinePageSize
+            isTimelineLoading.value = false
+        }
+    }
+
+    fun loadMoreTimelineEvents() {
+        if (isTimelineLoading.value || !hasMoreTimelineEvents.value) return
+        viewModelScope.launch {
+            isTimelineLoading.value = true
+            val nextPage = repository.getEventsPaged(limit = timelinePageSize, offset = currentTimelineOffset)
+            _paginatedTimelineEvents.value = _paginatedTimelineEvents.value + nextPage
+            currentTimelineOffset += nextPage.size
+            hasMoreTimelineEvents.value = nextPage.size >= timelinePageSize
+            isTimelineLoading.value = false
+        }
+    }
+
+    fun refreshTimelineEvents() {
+        val countToLoad = if (currentTimelineOffset > 0) currentTimelineOffset else timelinePageSize
+        viewModelScope.launch {
+            val page = repository.getEventsPaged(limit = countToLoad, offset = 0)
+            _paginatedTimelineEvents.value = page
+            hasMoreTimelineEvents.value = page.size >= countToLoad
+        }
+    }
 
     val lastSeenDisconnectEvent = MutableStateFlow<EventEntity?>(null)
 
@@ -121,11 +236,22 @@ class DeviceViewModel(
         viewModelScope.launch {
             lastSeenDisconnectEvent.value = repository.getLastDisconnectEvent(deviceId)
         }
+        loadInitialDeviceEvents(deviceId)
     }
 
     fun clearSelectedDevice() {
         selectedDeviceId.value = null
         lastSeenDisconnectEvent.value = null
+        _paginatedDeviceEvents.value = emptyList()
+        currentDeviceOffset = 0
+        hasMoreDeviceEvents.value = false
+    }
+
+    init {
+        loadInitialTimelineEvents()
+        viewModelScope.launch {
+            pruneExpiredEvents()
+        }
     }
 
     fun toggleService(enabled: Boolean) {
@@ -191,6 +317,30 @@ class DeviceViewModel(
         viewModelScope.launch {
             repository.clearAll()
             clearSelectedDevice()
+            _paginatedTimelineEvents.value = emptyList()
+            currentTimelineOffset = 0
+            hasMoreTimelineEvents.value = false
+        }
+    }
+
+    suspend fun exportHistoryToUri(uri: Uri, format: ExportFormat = ExportFormat.JSON): Result<ExportResult> {
+        return try {
+            val devices = repository.getAllDevices()
+            val events = repository.getAllEvents()
+            if (devices.isEmpty() && events.isEmpty()) {
+                return Result.failure(IllegalStateException("NO_DATA"))
+            }
+            val outputStream = context.contentResolver.openOutputStream(uri)
+                ?: return Result.failure(IllegalStateException("CANNOT_OPEN_URI"))
+            outputStream.use { stream ->
+                when (format) {
+                    ExportFormat.JSON -> ExportHelper.exportToJson(stream, devices, events)
+                    ExportFormat.CSV -> ExportHelper.exportToCsv(stream, devices, events)
+                }
+            }
+            Result.success(ExportResult(devices.size, events.size, uri))
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
 
@@ -257,10 +407,12 @@ class DeviceViewModel(
                 isUnexpectedDisconnect = isDisconnect
             )
             // Reload last disconnect event if current device is selected
+            refreshTimelineEvents()
             selectedDeviceId.value?.let { id ->
                 val current = repository.getDeviceById(id)
                 if (current?.macAddress == macAddress) {
                     lastSeenDisconnectEvent.value = repository.getLastDisconnectEvent(id)
+                    refreshDeviceEvents(id)
                 }
             }
         }

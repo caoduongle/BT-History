@@ -122,6 +122,23 @@ class BluetoothWatcherService : Service() {
             startForeground(NotificationHelper.SERVICE_NOTIFICATION_ID, notification)
         }
 
+        // Tự động dọn dẹp các sự kiện lịch sử cũ hơn ngưỡng cấu hình retention
+        serviceScope.launch(Dispatchers.IO) {
+            try {
+                val app = application as? BtWatcherApplication ?: return@launch
+                val retentionDays = app.preferencesRepository.historyRetentionDaysFlow.first()
+                if (retentionDays > 0) {
+                    val cutoff = System.currentTimeMillis() - (retentionDays * 24L * 60 * 60 * 1000L)
+                    val deleted = app.repository.deleteEventsOlderThan(cutoff)
+                    if (deleted > 0) {
+                        Log.d(TAG, "Đã tự động dọn dẹp $deleted sự kiện cũ hơn $retentionDays ngày")
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Lỗi khi tự động dọn dẹp sự kiện cũ: ${e.message}")
+            }
+        }
+
         return START_STICKY
     }
 

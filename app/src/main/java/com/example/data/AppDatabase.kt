@@ -5,6 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.data.dao.DeviceDao
 import com.example.data.dao.EventDao
 import com.example.data.entity.DeviceEntity
@@ -39,7 +40,7 @@ import com.example.data.entity.EventEntity
  */
 @Database(
     entities = [DeviceEntity::class, EventEntity::class],
-    version = 1,
+    version = 2,
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -52,22 +53,21 @@ abstract class AppDatabase : RoomDatabase() {
         private var INSTANCE: AppDatabase? = null
 
         /**
+         * Migration từ Version 1 lên Version 2:
+         * Bổ sung composite index `index_events_device_id_timestamp` trên bảng `events`
+         * để tối ưu hoá truy vấn phân trang lịch sử sự kiện theo từng thiết bị.
+         */
+        val MIGRATION_1_2 = object : Migration(1, 2) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_events_device_id_timestamp` ON `events` (`device_id`, `timestamp`)")
+            }
+        }
+
+        /**
          * Registry of all sequential migrations from version 1 onwards.
-         *
-         * When database version is bumped (e.g. from 1 to 2), instantiate:
-         * ```
-         * val MIGRATION_1_2 = object : Migration(1, 2) {
-         *     override fun migrate(db: SupportSQLiteDatabase) {
-         *         // Execute ALTER TABLE / CREATE TABLE statements
-         *     }
-         * }
-         * ```
-         * and add it to this array.
          */
         val ALL_MIGRATIONS: Array<Migration> = arrayOf(
-            // Future migrations will be listed here sequentially:
-            // MIGRATION_1_2,
-            // MIGRATION_2_3,
+            MIGRATION_1_2
         )
 
         fun getDatabase(context: Context): AppDatabase {
